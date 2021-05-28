@@ -1,0 +1,11 @@
+.git
+[Bb]uild/
+
+# Visual Studio Meta
+.vs/
+
+# JetBrains Meta
+.idea/
+
+# Mac OS Meta
+.DS_Store
