@@ -1,7 +1,6 @@
+#include <ECS/world.hpp>
 #include <Systems/AudioSystem.hpp>
 #include <Components/AudioComponent.hpp>
-
-#include "ECS/world.hpp"
 
 const string AudioComponentName = typeid(AudioComponent).name();
 

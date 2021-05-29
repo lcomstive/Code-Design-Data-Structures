@@ -3,7 +3,9 @@
 #include <raylib.h>
 #include <Systems/AudioSystem.hpp>
 #include <Systems/AnimationSystem.hpp>
+#include <Components/AudioComponent.hpp>
 #include <Systems/SpriteRenderSystem.hpp>
+#include <Components/CameraComponent.hpp>
 #include <Components/SpriteComponent.hpp>
 #include <Components/AnimatedSpriteComponent.hpp>
 
@@ -13,7 +15,7 @@ using namespace Utilities;
 Game::Game(const GameArgs& args)
 {
 	PROFILE_BEGIN("startup.json");
-	
+
 	m_World = make_unique<World>();
 	m_DeltaTimer = Timer("Delta Timer", false);
 
@@ -42,7 +44,7 @@ void Game::Initialise()
 {
 	Log::Initialize();
 	MessageBus::eventBus()->AddReceiver("LogError", [](DataStream stream) { cerr << "[ERROR] " << stream.read<string>(); });
-	
+
 	// --- SYSTEMS --- //
 	m_World->AddSystem<AudioSystem>();
 	m_World->AddSystem<AnimationSystem>();
@@ -51,47 +53,47 @@ void Game::Initialise()
 
 	m_World->Initialize();
 
+	// --- CAMERA --- //
+	m_Camera = m_World->CreateEntity();
+	m_Camera.AddComponent<TransformComponent>();
+	CameraComponent* cameraComponent = m_Camera.AddComponent<CameraComponent>();
+
 	// --- PLAYER --- //
 	m_Player = m_World->CreateEntity();
 	m_Player.AddComponent<DebugNameComponent>()->Name = "Player";
 
 	auto playerTransform = m_Player.AddComponent<TransformComponent>();
-	playerTransform->Position =
-	{
-		GetScreenWidth() / 2.0f,
-		GetScreenHeight() / 2.0f
-	};
 	playerTransform->Scale = { 1.5f, 1.5f };
 
 	auto playerSprite = m_Player.AddComponent<AnimatedSpriteComponent>();
 	playerSprite->Sprite = ResourceManager::LoadTexture("assets/Huntress/Sprites/Idle.png");
 	playerSprite->Subdivide(8);
 
-	m_InputSystem->Map(KEY_W, "PlayerMoveUp",    [&](DataStream) { MovePlayerTest(m_Player, {  0,  1 }); });
-	m_InputSystem->Map(KEY_S, "PlayerMoveDown",  [&](DataStream) { MovePlayerTest(m_Player, {  0, -1 }); });
-	m_InputSystem->Map(KEY_A, "PlayerMoveLeft",  [&](DataStream) { MovePlayerTest(m_Player, { -1,  0 }); });
-	m_InputSystem->Map(KEY_D, "PlayerMoveRight", [&](DataStream) { MovePlayerTest(m_Player, {  1,  0 }); });
+	m_InputSystem->Map(KEY_W, "PlayerMoveUp", [&](DataStream) { MovePlayerTest(m_Player, { 0,  -1 }); });
+	m_InputSystem->Map(KEY_S, "PlayerMoveDown", [&](DataStream) { MovePlayerTest(m_Player, { 0,  1 }); });
+	m_InputSystem->Map(KEY_A, "PlayerMoveLeft", [&](DataStream) { MovePlayerTest(m_Player, { -1,  0 }); });
+	m_InputSystem->Map(KEY_D, "PlayerMoveRight", [&](DataStream) { MovePlayerTest(m_Player, { 1,  0 }); });
 
 	m_InputSystem->Map(KEY_ESCAPE, "KeyQuit", [&](DataStream) { Quit(); });
 
 	m_InputSystem->Map(KEY_Q, "PlaySound1", [&](DataStream)
-	{
-		Entity e = m_World->CreateEntity();
-		e.AddComponent<AudioComponent>()
-			->Sound = ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
-	}, InputBindingState::Down);
+		{
+			Entity e = m_World->CreateEntity();
+			e.AddComponent<AudioComponent>()
+				->Sound = ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
+		}, InputBindingState::Down);
 	m_InputSystem->Map(KEY_E, "PlaySound2", [&](DataStream)
-	{
-		Entity e = m_World->CreateEntity();
-		e.AddComponent<AudioComponent>()
-			->Sound = ResourceManager::LoadSound("assets/Sounds/monke_2.wav");
-	}, InputBindingState::Down);
+		{
+			Entity e = m_World->CreateEntity();
+			e.AddComponent<AudioComponent>()
+				->Sound = ResourceManager::LoadSound("assets/Sounds/monke_2.wav");
+		}, InputBindingState::Down);
 	m_InputSystem->Map(KEY_SPACE, "PlaySound3", [&](DataStream)
-	{
-		Entity e = m_World->CreateEntity();
-		e.AddComponent<AudioComponent>()
-			->Sound = ResourceManager::LoadSound("assets/Sounds/Marcus_Poggers.wav");
-	}, InputBindingState::Down);
+		{
+			Entity e = m_World->CreateEntity();
+			e.AddComponent<AudioComponent>()
+				->Sound = ResourceManager::LoadSound("assets/Sounds/Marcus_Poggers.wav");
+		}, InputBindingState::Down);
 }
 
 void Game::Run()
@@ -118,7 +120,7 @@ void Game::Run()
 void Game::Update(float deltaTime)
 {
 	BeginDrawing();
-	ClearBackground({ 20, 20, 20, 255 });
+	ClearBackground({ 10, 10, 10, 255 });
 
 	m_World->Update(deltaTime);
 

@@ -23,6 +23,7 @@ class Game
 	InputSystem* m_InputSystem;
 
 	ECS::Entity m_Player;
+	ECS::Entity m_Camera;
 
 public:
 	Game(const GameArgs& args = {});

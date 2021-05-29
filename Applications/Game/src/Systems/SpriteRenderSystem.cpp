@@ -3,10 +3,16 @@
 #include <raylib.h>
 #include <ECS/world.hpp>
 #include <Components/SpriteComponent.hpp>
+#include <Components/CameraComponent.hpp>
 #include <Components/AnimatedSpriteComponent.hpp>
 #include <ECS/components/transform-component.hpp>
 
+#include <rlgl.h>
+
 using namespace ECS;
+using namespace Utilities;
+
+const string CameraComponentName = typeid(CameraComponent).name();
 
 struct SpriteDrawInfo
 {
@@ -17,13 +23,39 @@ struct SpriteDrawInfo
 	Rectangle SourceRect;
 };
 
-void SpriteRenderSystem::Init() { GAME_LOG_DEBUG("Sprite render system ready"); }
+void SpriteRenderSystem::Init()
+{
+	MessageBus::eventBus()->AddReceiver("ComponentAdd" + CameraComponentName, [&](DataStream stream)
+		{
+			EntityID worldID = stream.read<EntityID>();
+			if (worldID != world()->ID())
+				return; // Not for this system
+			EntityID entity = stream.read<EntityID>();
+
+			Camera2D camera = { 0 };
+			CameraComponent* component = world()->GetComponent<CameraComponent>(entity);
+			Vector3 cameraPos = world()->GetComponent<TransformComponent>(entity)->Position;
+			camera.zoom = component->Zoom;
+			camera.target = { cameraPos.x, cameraPos.y };
+			m_Cameras.emplace(entity, camera);
+		});
+
+	MessageBus::eventBus()->AddReceiver("ComponentRemove" + CameraComponentName, [&](DataStream stream)
+		{
+			EntityID worldID = stream.read<EntityID>();
+			if (worldID != world()->ID())
+				return; // Not for this system
+			m_Cameras.erase(stream.read<EntityID>());
+		});
+
+	GAME_LOG_DEBUG("Sprite render system ready");
+}
 
 void SpriteRenderSystem::Update(float deltaTime)
 {
-	PROFILE_FN();
+	PROFILE_FN()
 
-	auto entities = world()->GetComponents<TransformComponent, SpriteComponent>();
+		auto entities = world()->GetComponents<TransformComponent, SpriteComponent>();
 	auto animatedEntities = world()->GetComponents<TransformComponent, AnimatedSpriteComponent>();
 
 	map<float, SpriteDrawInfo> sortedDrawInfo;
@@ -83,26 +115,54 @@ void SpriteRenderSystem::Update(float deltaTime)
 			});
 	}
 
-	for (auto& drawInfo : sortedDrawInfo)
+	Vector2 cameraScreenOffset =
 	{
-		if(drawInfo.second.Sprite == InvalidResourceID)
-			continue;
-		
-		Texture texture = ResourceManager::GetTexture(drawInfo.second.Sprite);
-		if (texture.width <= 0 || texture.height <= 0)
-			continue; // Texture isn't found?
+		GetScreenWidth() / 2.0f,
+		GetScreenHeight() / 2.0f
+	};
+	for (auto& pair : m_Cameras)
+	{
+		Camera2D& cam = pair.second;
+		CameraComponent* comp = world()->GetComponent<CameraComponent>(pair.first);
 
-		SpriteDrawInfo info = drawInfo.second;
-		DrawTexturePro(
-			texture,
-			info.SourceRect,
-			info.DestRect,
-			{
-				info.DestRect.width / 2.0f,
-				info.DestRect.height / 2.0f
-			},
-			info.Rotation,
-			info.Tint
-		);
+		Vector3 camPos = world()->GetComponent<TransformComponent>(pair.first)->Position;
+		cam.target =
+		{
+			camPos.x - cameraScreenOffset.x,
+			camPos.y - cameraScreenOffset.y
+		};
+
+		BeginMode2D(cam);
+		rlViewport(
+			(int)comp->Viewport.x,
+			(int)comp->Viewport.y,
+			(int)comp->Viewport.width,
+			(int)comp->Viewport.height);
+
+		for (auto& drawInfo : sortedDrawInfo)
+		{
+			if (drawInfo.second.Sprite == InvalidResourceID)
+				continue;
+
+			Texture texture = ResourceManager::GetTexture(drawInfo.second.Sprite);
+			if (texture.width <= 0 || texture.height <= 0)
+				continue; // Texture isn't found?
+
+			SpriteDrawInfo info = drawInfo.second;
+			DrawTexturePro(
+				texture,
+				info.SourceRect,
+				info.DestRect,
+				{
+					info.DestRect.width / 2.0f,
+					info.DestRect.height / 2.0f
+				},
+				info.Rotation,
+				info.Tint
+			);
+		}
+		
+		EndMode2D();
 	}
+	rlViewport(0, 0, GetScreenWidth(), GetScreenHeight());
 }

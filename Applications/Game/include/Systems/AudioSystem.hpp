@@ -2,9 +2,7 @@
 #include <vector>
 #include <map>
 #include <ECS/system.hpp>
-#include <Components/AudioComponent.hpp>
-
-#include "ECS/entity.hpp"
+#include <ECS/entity.hpp>
 
 class AudioSystem : public ECS::System
 {
