@@ -6,6 +6,7 @@
 #include <mutex>
 #include <vector>
 #include <functional>
+#include <thread>
 #include <GameUtilities/data-stream.hpp>
 
 using namespace std;

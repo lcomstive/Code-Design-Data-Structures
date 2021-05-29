@@ -31,7 +31,7 @@ namespace ECS
 		template<typename T>
 		void Remove()
 		{
-			if (!hasSystem<T>())
+			if (!Has<T>())
 				return;
 			type_index type = typeid(T);
 			delete m_Systems[type];
@@ -44,7 +44,7 @@ namespace ECS
 		template<typename T>
 		T* Get()
 		{
-			if (!hasSystem<T>())
+			if (!Has<T>())
 				return nullptr;
 			return m_Systems[typeid(T)];
 		}

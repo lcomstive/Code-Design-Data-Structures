@@ -1,11 +1,13 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <exception>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#if _WIN32
 #define _WRITESTREAM(type, streamType) template<> DataStream* write<##type>(##type t) { \
 																		char data[sizeof(##type)]; \
 																		memcpy(data, &t, sizeof(##type)); \
@@ -15,6 +17,19 @@
 																		##type t; \
 																		memcpy(&t, _read(streamType, sizeof(##type)), sizeof(##type)); \
 																		return t; }
+#else
+#define _WRITESTREAM(type, streamType) template<> DataStream* write<type>(type t) { \
+																		char data[sizeof(type)]; \
+																		memcpy(data, &t, sizeof(type)); \
+																		_write(streamType, data, sizeof(type)); \
+																		return this; }
+
+#define _READSTREAM(type, streamType) template<> type read<type>() { \
+																		type t; \
+																		memcpy(&t, _read(streamType, sizeof(type)), sizeof(type)); \
+																		return t; }
+
+#endif
 
 namespace Utilities
 {
@@ -47,16 +62,17 @@ namespace Utilities
 		void _write(StreamType streamType, char* data, unsigned int length);
 		char* _read(StreamType streamType, unsigned int length);
 		char* _readArray(StreamType streamType, unsigned int* length);
+
 	public:
 		DataStream(std::string path);
 		DataStream(DataStream* other);
 		DataStream(const DataStream& other);
 		DataStream(char* data, unsigned int length);
 		DataStream(unsigned int initialSize = _initialStreamSize);
-		DataStream(std::vector<char>& data, unsigned int length = 0);
+		DataStream(std::vector<char> data, unsigned int length = 0);
 		~DataStream();
 
-		static DataStream& Empty()
+		static DataStream Empty()
 		{
 			DataStream stream = DataStream((unsigned int)0);
 			stream.m_Writing = false;
@@ -94,7 +110,14 @@ namespace Utilities
 			memcpy(output, m_Data, (size_t)length());
 		}
 
-		template<typename T> DataStream* write(T t) { throw exception("Tried writing invalid type to stream"); }
+		template<typename T> DataStream* write(T t)
+		{
+#if _WIN32
+			throw std::exception("Tried writing invalid type to stream");
+#else
+			throw "Tried writing invalid type to stream";
+#endif
+		}
 
 		DataStream* write(char* c, unsigned int length) { _write(StreamType::CHARARRAY, c, length); return this; }
 
@@ -112,13 +135,18 @@ namespace Utilities
 		_WRITESTREAM(float, StreamType::FLOAT)
 		_WRITESTREAM(double, StreamType::DOUBLE)
 		_WRITESTREAM(long, StreamType::LONG)
-		_WRITESTREAM(unsigned long, StreamType::ULONG)
 		_WRITESTREAM(long long, StreamType::LLONG)
 		_WRITESTREAM(short, StreamType::SHORT)
 		_WRITESTREAM(unsigned short, StreamType::USHORT)
+		// _WRITESTREAM(unsigned long, StreamType::ULONG)
 
-		template<typename T> T read() { throw exception("Tried reading invalid type"); }
-		template<typename T> T readArray(unsigned int* length) { throw exception("Tried reading invalid type"); }
+#if _WIN32
+		template<typename T> T read() { throw std::exception("Tried reading invalid type"); }
+		template<typename T> T readArray(unsigned int* length) { throw std::exception("Tried reading invalid type"); }
+#else
+		template<typename T> T read() { throw "Tried reading invalid type"; }
+		template<typename T> T readArray(unsigned int* length) { throw "Tried reading invalid type"; }
+#endif
 
 		template<> char* readArray<char*>(unsigned int* length)
 		{
@@ -157,9 +185,9 @@ namespace Utilities
 		_READSTREAM(float, StreamType::FLOAT)
 		_READSTREAM(double, StreamType::DOUBLE)
 		_READSTREAM(long, StreamType::LONG)
-		_READSTREAM(unsigned long, StreamType::ULONG)
 		_READSTREAM(long long, StreamType::LLONG)
 		_READSTREAM(short, StreamType::SHORT)
 		_READSTREAM(unsigned short, StreamType::USHORT)
+		// _READSTREAM(unsigned long, StreamType::ULONG)
 	};
 }

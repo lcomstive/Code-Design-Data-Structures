@@ -36,7 +36,7 @@ unsigned int MessageBus::AddReceiver(string event, function<void(DataStream)> ca
 	if (m_Receivers.find(hashedEvent) == m_Receivers.end())
 		m_Receivers.emplace(hashedEvent, map<unsigned int, function<void(DataStream)>>());
 
-	while (m_Receivers[hashedEvent].find(++id) != m_Receivers[hashedEvent].end());
+	while (m_Receivers[hashedEvent].find(++id) != m_Receivers[hashedEvent].end()) { }
 
 	{
 		lock_guard guard(m_ReceiverMutex);

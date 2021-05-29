@@ -25,7 +25,7 @@ static const uint32_t TestArraySize = 5;
 
 TEST_CASE("Double linked list can be created from int array", "[double-linked-list]")
 {
-	DoubleLinkedList linkedList(TestArray, TestArraySize);
+	DoubleLinkedList<int> linkedList(TestArray, TestArraySize);
 	REQUIRE(linkedList.Size() == TestArraySize);
 
 	SECTION("Adding element at start")

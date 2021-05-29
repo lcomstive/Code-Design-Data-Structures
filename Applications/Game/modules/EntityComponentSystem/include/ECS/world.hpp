@@ -44,18 +44,18 @@ namespace ECS
 			void RemoveComponent() { if(world) world->RemoveComponent<T>(ID); }
 
 			template<typename T>
-			bool HasComponent() { return world ? world->HasComponent<T>(ID) : nullptr; }
+			bool HasComponent() { return world && world->HasComponent<T>(ID); }
 
-			bool HasComponents() { return world ? world->HasComponents(ID) : nullptr; }
+			bool HasComponents() { return world && world->HasComponents(ID); }
 
 			template<typename T1, typename T2>
-			bool HasComponents() { return world ? world->HasComponents<T1, T2>(ID) : nullptr; }
+			bool HasComponents() { return world && world->HasComponents<T1, T2>(ID); }
 
 			template<typename T1, typename T2, typename T3>
-			bool HasComponents() { return world ? world->HasComponents<T1, T2, T3>(ID) : nullptr; }
+			bool HasComponents() { return world && world->HasComponents<T1, T2, T3>(ID); }
 
 			template<typename T1, typename T2, typename T3, typename T4>
-			bool HasComponents() { return world ? world->HasComponents<T1, T2, T3, T4>(ID) : nullptr; }
+			bool HasComponents() { return world && world->HasComponents<T1, T2, T3, T4>(ID); }
 
 			void ClearComponents() { if(world) world->ClearComponents(ID); }
 
@@ -215,7 +215,7 @@ namespace ECS
 		bool HasSystem() { return m_SystemManager->Has<T>(); }
 
 		template<typename T>
-		T* GetSystem() { return m_SystemManager->get<T>(); }
+		T* GetSystem() { return m_SystemManager->Get<T>(); }
 
 		/// Getters ///
 		EntityID ID();

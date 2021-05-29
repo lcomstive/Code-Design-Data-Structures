@@ -28,7 +28,7 @@ namespace ECS
 			void Destroy()
 			{
 				for (size_t i = 0; i < Instances.size(); i++)
-					delete Instances[i];
+					free(Instances[i]); // delete Instances[i];
 				Instances.clear();
 				EntityIndex.clear();
 			}
@@ -57,7 +57,7 @@ namespace ECS
 			void Remove(EntityID entity)
 			{
 				unsigned int instanceIndex = EntityIndex[entity];
-				delete Instances[instanceIndex];
+				free(Instances[instanceIndex]); // delete Instances[instanceIndex];
 				Instances.erase(Instances.begin() + instanceIndex);
 
 				EntityIndex.erase(entity);
@@ -105,7 +105,7 @@ namespace ECS
 			type_index type = typeid(T);
 			if (m_ComponentArrays.find(type) == m_ComponentArrays.end())
 				m_ComponentArrays.emplace(type, ComponentData());
-			component = new T();
+			component = (T*)malloc(sizeof(T)); // new T();
 			m_ComponentArrays[type].Add(component, id);
 			
 			if (m_EntityComponents.find(id) == m_EntityComponents.end())

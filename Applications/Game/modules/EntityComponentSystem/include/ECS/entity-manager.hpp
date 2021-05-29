@@ -109,7 +109,7 @@ namespace ECS
 			{
 				if (m_Entities[i]) // if entity available (not being used)
 					continue;
-				if (m_ComponentManager::Has<T1, T2, T3>(i))
+				if (m_ComponentManager->Has<T1, T2, T3>(i))
 					entities.emplace_back(i);
 			}
 			return entities;
@@ -125,7 +125,7 @@ namespace ECS
 			{
 				if (m_Entities[i]) // if entity available (not being used)
 					continue;
-				if (m_ComponentManager::Has<T1, T2, T3, T4>(i))
+				if (m_ComponentManager->Has<T1, T2, T3, T4>(i))
 					entities.emplace_back(i);
 			}
 			return entities;

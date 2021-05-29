@@ -23,7 +23,7 @@ DataStream::DataStream(DataStream* other) : m_Index(0), m_Writing(false)
 	memcpy(m_Data, other->m_Data, (size_t)m_Length);
 }
 
-DataStream::DataStream(vector<char>& data, unsigned int length) : m_Index(0), m_Writing(false)
+DataStream::DataStream(vector<char> data, unsigned int length) : m_Index(0), m_Writing(false)
 {
 	m_Length = length > 0 ? length : (unsigned int)data.size();
 	m_Data = new char[m_Length];
@@ -33,7 +33,11 @@ DataStream::DataStream(vector<char>& data, unsigned int length) : m_Index(0), m_
 DataStream::DataStream(char* data, unsigned int length) : m_Index(0), m_Writing(false)
 {
 	if (length <= 0)
+#if _WIN32
 		throw exception("Length is not assigned");
+#else
+		throw "Length is not assigned";
+#endif
 
 	m_Length = length > 0 ? length : (unsigned int)length;
 	m_Data = new char[m_Length];
@@ -64,7 +68,11 @@ void DataStream::_write(StreamType type, char* data, unsigned int length)
 #ifndef NDEBUG
 		cerr << "Tried to write to DataStream in reading mode" << endl;
 #endif
+#if _WIN32
 		throw exception("Tried to write to DataStream that was in reading mode");
+#else
+		throw "Tried to write to DataStream that was in reading mode";
+#endif
 	}
 
 	if ((length + m_Index + 1) > m_Length)
@@ -95,7 +103,12 @@ char* DataStream::_readArray(StreamType expectedType, unsigned int* length)
 #ifndef NDEBUG
 		cerr << "Tried reading DataStream while in write mode" << endl;
 #endif
+
+#if _WIN32
 		throw exception("Tried reading DataStream but is in writing mode");
+#else
+		throw "Tried reading DataStream but is in writing mode";
+#endif
 	}
 
 	StreamType type = (StreamType)m_Data[m_Index++];
@@ -104,7 +117,12 @@ char* DataStream::_readArray(StreamType expectedType, unsigned int* length)
 #ifndef NDEBUG
 		cerr << "Read wrong type, aborting..." << endl;
 #endif
+
+#if _WIN32
 		throw exception("Read wrong type, aborting...");
+#else
+		throw "Read wrong type, aborting...";
+#endif
 	}
 
 	if (type == StreamType::STRING || type == StreamType::CHARARRAY)
