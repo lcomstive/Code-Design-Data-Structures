@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 #include <ECS/world.hpp>
+#include <DataStructures/QuickSort.hpp>
 #include <Components/SpriteComponent.hpp>
 #include <Components/CameraComponent.hpp>
 #include <Components/AnimatedSpriteComponent.hpp>
@@ -10,6 +11,7 @@
 #include <rlgl.h>
 
 using namespace ECS;
+using namespace LCDS;
 using namespace Utilities;
 
 const string CameraComponentName = typeid(CameraComponent).name();
@@ -58,14 +60,14 @@ void SpriteRenderSystem::Update(float deltaTime)
 		auto entities = world()->GetComponents<TransformComponent, SpriteComponent>();
 	auto animatedEntities = world()->GetComponents<TransformComponent, AnimatedSpriteComponent>();
 
-	map<float, SpriteDrawInfo> sortedDrawInfo;
+	vector<SpriteDrawInfo> sortedDrawInfo;
 
 	for (auto& pair : entities)
 	{
 		TransformComponent* transform = pair.second.first;
 		SpriteComponent* sprite = pair.second.second;
 
-		sortedDrawInfo.emplace(transform->Position.z,
+		sortedDrawInfo.push_back(
 			SpriteDrawInfo
 			{
 				sprite->Tint,
@@ -99,7 +101,7 @@ void SpriteRenderSystem::Update(float deltaTime)
 			srcRect.y += sprite->ReferenceSize.height;
 		}
 
-		sortedDrawInfo.emplace(transform->Position.z,
+		sortedDrawInfo.push_back(
 			SpriteDrawInfo
 			{
 				sprite->Tint,
@@ -115,10 +117,13 @@ void SpriteRenderSystem::Update(float deltaTime)
 			});
 	}
 
-	Vector2 cameraScreenOffset =
+	// TODO: Sort sortedDrawInfo based on transformComponent->Position.z
+
+	Vector2 dpi = GetWindowScaleDPI();
+	Vector2 camOffset =
 	{
-		GetScreenWidth() / 2.0f,
-		GetScreenHeight() / 2.0f
+			(GetScreenWidth() / 2.0f),
+			(GetScreenHeight() / 2.0f)
 	};
 	for (auto& pair : m_Cameras)
 	{
@@ -126,43 +131,41 @@ void SpriteRenderSystem::Update(float deltaTime)
 		CameraComponent* comp = world()->GetComponent<CameraComponent>(pair.first);
 
 		Vector3 camPos = world()->GetComponent<TransformComponent>(pair.first)->Position;
-		cam.target =
-		{
-			camPos.x - cameraScreenOffset.x,
-			camPos.y - cameraScreenOffset.y
-		};
+		cam.target = { camPos.x, camPos.y };
+		cam.offset = camOffset; // Transform so center of screen is (0, 0)
 
 		BeginMode2D(cam);
+
 		rlViewport(
-			(int)comp->Viewport.x,
-			(int)comp->Viewport.y,
+			(int)(comp->Viewport.x * dpi.x),
+			(int)(comp->Viewport.y * dpi.y),
 			(int)comp->Viewport.width,
 			(int)comp->Viewport.height);
 
 		for (auto& drawInfo : sortedDrawInfo)
 		{
-			if (drawInfo.second.Sprite == InvalidResourceID)
+			if (drawInfo.Sprite == InvalidResourceID)
 				continue;
 
-			Texture texture = ResourceManager::GetTexture(drawInfo.second.Sprite);
+			Texture texture = ResourceManager::GetTexture(drawInfo.Sprite);
 			if (texture.width <= 0 || texture.height <= 0)
 				continue; // Texture isn't found?
 
-			SpriteDrawInfo info = drawInfo.second;
 			DrawTexturePro(
 				texture,
-				info.SourceRect,
-				info.DestRect,
+				drawInfo.SourceRect,
+				drawInfo.DestRect,
 				{
-					info.DestRect.width / 2.0f,
-					info.DestRect.height / 2.0f
+					drawInfo.DestRect.width / 2.0f,
+					drawInfo.DestRect.height / 2.0f
 				},
-				info.Rotation,
-				info.Tint
+				drawInfo.Rotation,
+				drawInfo.Tint
 			);
 		}
 		
 		EndMode2D();
 	}
-	rlViewport(0, 0, GetScreenWidth(), GetScreenHeight());
+
+	rlViewport(0, 0, GetScreenWidth() * dpi.x, GetScreenHeight() * dpi.y);
 }

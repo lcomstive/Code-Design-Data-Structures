@@ -18,14 +18,6 @@ add_subdirectory(modules/EntityComponentSystem)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 
-target_link_libraries(${PROJECT_NAME}
-						DataStructures
-						raylib
-						GameUtilities
-						GamePhysics
-						EntityComponentSystem
-					 )
-
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "Source" FILES ${SOURCE_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Headers" FILES ${HEADER_FILES})
 
@@ -42,3 +34,11 @@ add_custom_command(
 	${CMAKE_CURRENT_SOURCE_DIR}/assets
 	${ASSET_OUTPUT_DIR}
 )
+
+target_link_libraries(${PROJECT_NAME}
+		DataStructures
+		raylib
+		GameUtilities
+		GamePhysics
+		EntityComponentSystem
+		)

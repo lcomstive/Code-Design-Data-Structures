@@ -5,6 +5,7 @@
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
 #include <raygui.h> // Immediate-mode GUI
+#include <rlgl.h>
 
 // Components
 #include <Components/AudioComponent.hpp>
@@ -57,10 +58,17 @@ Game::~Game() { Quit(); }
 
 void Game::Initialise()
 {
-	Vector2 resolution = { GetScreenWidth(), GetScreenHeight() };
-	
+	Vector2 dpi = GetWindowScaleDPI();
+	Vector2 resolution =
+	{
+			(float)GetScreenWidth(),
+			(float)GetScreenHeight()
+	};
+
 	Log::Initialize();
 	MessageBus::eventBus()->AddReceiver("LogError", [](DataStream stream) { cerr << "[ERROR] " << stream.read<string>(); });
+
+	rlViewport(0, 0, resolution.x * dpi.x, resolution.y * dpi.y);
 
 	// --- SYSTEMS --- //
 	m_World->AddSystem<AudioSystem>();
@@ -77,7 +85,6 @@ void Game::Initialise()
 	CameraComponent* cameraComponent = m_Camera.AddComponent<CameraComponent>();
 
 	cameraComponent->Zoom = 1.0f;
-	cameraComponent->Viewport = { 0, 0, resolution.x, resolution.y };
 
 	// --- PLAYER --- //
 	m_Player = m_World->CreateEntity();
@@ -85,7 +92,7 @@ void Game::Initialise()
 	m_Player.AddComponent<DebugNameComponent>()->Name = "Player";
 
 	auto playerTransform = m_Player.AddComponent<TransformComponent>();
-	playerTransform->Scale.x = playerTransform->Scale.y = resolution.x / 200.0f;
+	playerTransform->Scale.x = playerTransform->Scale.y = (resolution.x * dpi.x) / 200.0f;
 	playerTransform->Position = { resolution.x * -0.3f, resolution.y * 0.15f, 99 };
 
 	auto playerSprite = m_Player.AddComponent<AnimatedSpriteComponent>();
@@ -109,6 +116,8 @@ void Game::Initialise()
 
 	m_InputSystem->Map(KEY_ESCAPE, "KeyQuit", [&](DataStream) { Quit(); });
 
+	MessageBus::eventBus()->Send("PlayerRunning");
+
 	/*
 	m_InputSystem->Map(KEY_Q, "PlaySound1", [&](DataStream)
 		{
@@ -118,21 +127,43 @@ void Game::Initialise()
 		}, InputBindingState::Down);
 	*/
 
-	Entity floor = m_World->CreateEntity();
-	floor.AddComponent<PhysicsBodyComponent>()->Dynamic = false;
-	auto floorTransform = floor.AddComponent<TransformComponent>();
-	floorTransform->Position = { 0, resolution.y - 20 };
-	floorTransform->Scale = { resolution.x, 10 };
+	const int FloorSpriteCount = 9;
+	float strideX = 14.0f;
+	float scale = 7.5f;
+	float initialX = resolution.x / -2.0f;
+	for(int i = 0; i < FloorSpriteCount; i++)
+	{
+		Entity floor = m_World->CreateEntity();
+		floor.AddComponent<PhysicsBodyComponent>()->Dynamic = false;
 
-	auto floorSprite = floor.AddComponent<SpriteComponent>();
-	floorSprite->Sprite = ResourceManager::LoadTexture("");
+		auto floorTransform = floor.AddComponent<TransformComponent>();
+		floorTransform->Position = { initialX + i * strideX * scale, resolution.y * 0.35f};
+		floorTransform->Scale = { scale, scale };
+
+		auto floorSprite = floor.AddComponent<AnimatedSpriteComponent>();
+		floorSprite->Sprite = ResourceManager::LoadTexture("assets/kenney_pixelplatformer/Tilemap/tiles_packed.png");
+		floorSprite->Frame = i % 3;
+		floorSprite->MaxFrames = 3;
+		floorSprite->TimeBetweenFrames = 150;
+
+		floorSprite->ReferenceSize =
+				{
+				20,
+				2,
+				14,
+				14
+				};
+
+		GAME_LOG_DEBUG("ADDED FLOOR SPRITE [" + to_string(floor.ID) + "]");
+	}
 }
 
 void Game::Run()
 {
 	PROFILE_BEGIN("runtime.json");
+	m_Running = true;
 	m_DeltaTimer.Start();
-	while (IsRunning() && !WindowShouldClose())
+	while (m_Running && !WindowShouldClose())
 	{
 		m_DeltaTimer.Stop();
 		auto deltaTime = m_DeltaTimer.elapsedTimeMS();
