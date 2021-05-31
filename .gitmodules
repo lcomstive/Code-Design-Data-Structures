@@ -4,6 +4,3 @@
 [submodule "ThirdParty/raygui"]
 	path = ThirdParty/raygui
 	url = https://github.com/raysan5/raygui.git
-[submodule "ThirdParty/Physac"]
-	path = ThirdParty/Physac
-	url = https://github.com/victorfisac/Physac.git

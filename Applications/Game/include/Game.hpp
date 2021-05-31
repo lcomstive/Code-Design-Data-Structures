@@ -35,6 +35,7 @@ public:
 	bool IsRunning() const;
 
 private:
+	void DrawGUI();
 	void Initialise();
 	void Update(float deltaTime);
 };

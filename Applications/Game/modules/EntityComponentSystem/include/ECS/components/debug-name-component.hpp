@@ -5,6 +5,6 @@ namespace ECS
 {
 	struct DebugNameComponent
 	{
-		std::string Name = "";
+		std::string Name;
 	};
 }

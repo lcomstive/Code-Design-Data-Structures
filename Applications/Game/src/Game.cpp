@@ -1,16 +1,38 @@
 #include <Game.hpp>
 #include <iostream>
 #include <raylib.h>
-#include <Systems/AudioSystem.hpp>
-#include <Systems/AnimationSystem.hpp>
+
+#define RAYGUI_IMPLEMENTATION
+#define RAYGUI_SUPPORT_ICONS
+#include <raygui.h> // Immediate-mode GUI
+
+// Components
 #include <Components/AudioComponent.hpp>
-#include <Systems/SpriteRenderSystem.hpp>
 #include <Components/CameraComponent.hpp>
 #include <Components/SpriteComponent.hpp>
+#include <Components/PlayerInputComponent.hpp>
+#include <Components/PhysicsBodyComponent.hpp>
 #include <Components/AnimatedSpriteComponent.hpp>
+
+// Systems
+#include <Systems/AudioSystem.hpp>
+#include <Systems/PhysicsSystem.hpp>
+#include <Systems/AnimationSystem.hpp>
+#include <Systems/PlayerStateSystem.hpp>
+#include <Systems/SpriteRenderSystem.hpp>
 
 using namespace ECS;
 using namespace Utilities;
+
+const string DinoTextureBase = "assets/DinoCharacters/sheets/DinoSprites - ";
+vector<string> DinoTextures =
+{
+	"doux",
+	"mort",
+	"tard",
+	"vita"
+};
+int DinoTextureIndex = 0;
 
 Game::Game(const GameArgs& args)
 {
@@ -33,21 +55,17 @@ Game::Game(const GameArgs& args)
 
 Game::~Game() { Quit(); }
 
-void MovePlayerTest(Entity player, Vector2 direction)
-{
-	Vector3* position = &player.GetComponent<TransformComponent>()->Position;
-	position->x += direction.x;
-	position->y += direction.y;
-}
-
 void Game::Initialise()
 {
+	Vector2 resolution = { GetScreenWidth(), GetScreenHeight() };
+	
 	Log::Initialize();
 	MessageBus::eventBus()->AddReceiver("LogError", [](DataStream stream) { cerr << "[ERROR] " << stream.read<string>(); });
 
 	// --- SYSTEMS --- //
 	m_World->AddSystem<AudioSystem>();
 	m_World->AddSystem<AnimationSystem>();
+	m_World->AddSystem<PlayerStateSystem>();
 	m_World->AddSystem<SpriteRenderSystem>();
 	m_InputSystem = m_World->AddSystem<InputSystem>();
 
@@ -55,45 +73,59 @@ void Game::Initialise()
 
 	// --- CAMERA --- //
 	m_Camera = m_World->CreateEntity();
-	m_Camera.AddComponent<TransformComponent>();
+	m_Camera.AddComponent<TransformComponent>()->Position = { 0, 0, 0 };
 	CameraComponent* cameraComponent = m_Camera.AddComponent<CameraComponent>();
+
+	cameraComponent->Zoom = 1.0f;
+	cameraComponent->Viewport = { 0, 0, resolution.x, resolution.y };
 
 	// --- PLAYER --- //
 	m_Player = m_World->CreateEntity();
+	m_Player.AddComponent<PlayerInputComponent>();
 	m_Player.AddComponent<DebugNameComponent>()->Name = "Player";
 
 	auto playerTransform = m_Player.AddComponent<TransformComponent>();
-	playerTransform->Scale = { 1.5f, 1.5f };
+	playerTransform->Scale.x = playerTransform->Scale.y = resolution.x / 200.0f;
+	playerTransform->Position = { resolution.x * -0.3f, resolution.y * 0.15f, 99 };
 
 	auto playerSprite = m_Player.AddComponent<AnimatedSpriteComponent>();
+	/*
 	playerSprite->Sprite = ResourceManager::LoadTexture("assets/Huntress/Sprites/Idle.png");
 	playerSprite->Subdivide(8);
+	*/
+	playerSprite->Sprite = ResourceManager::LoadTexture(DinoTextureBase + DinoTextures[DinoTextureIndex] + ".png");
+	Texture texture = ResourceManager::GetTexture(playerSprite->Sprite);
+	playerSprite->MaxFrames = 4;
+	playerSprite->ReferenceSize = { 0, 0, texture.width / 24.0f, (float)texture.height };
+	
+	m_Player.AddComponent<PhysicsBodyComponent>();
 
-	m_InputSystem->Map(KEY_W, "PlayerMoveUp", [&](DataStream) { MovePlayerTest(m_Player, { 0,  -1 }); });
-	m_InputSystem->Map(KEY_S, "PlayerMoveDown", [&](DataStream) { MovePlayerTest(m_Player, { 0,  1 }); });
-	m_InputSystem->Map(KEY_A, "PlayerMoveLeft", [&](DataStream) { MovePlayerTest(m_Player, { -1,  0 }); });
-	m_InputSystem->Map(KEY_D, "PlayerMoveRight", [&](DataStream) { MovePlayerTest(m_Player, { 1,  0 }); });
+	m_InputSystem->Map(KEY_W,  "PlayerJump");
+	m_InputSystem->Map(KEY_UP, "PlayerJump");
+	m_InputSystem->Map(KEY_S,  "PlayerCrouch", InputBindingState::Held);
+	m_InputSystem->Map(KEY_DOWN, "PlayerCrouch", InputBindingState::Held);
+	m_InputSystem->Map(KEY_S,  "PlayerRunning", InputBindingState::Up);
+	m_InputSystem->Map(KEY_DOWN, "PlayerRunning", InputBindingState::Up);
 
 	m_InputSystem->Map(KEY_ESCAPE, "KeyQuit", [&](DataStream) { Quit(); });
 
+	/*
 	m_InputSystem->Map(KEY_Q, "PlaySound1", [&](DataStream)
 		{
 			Entity e = m_World->CreateEntity();
 			e.AddComponent<AudioComponent>()
 				->Sound = ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
 		}, InputBindingState::Down);
-	m_InputSystem->Map(KEY_E, "PlaySound2", [&](DataStream)
-		{
-			Entity e = m_World->CreateEntity();
-			e.AddComponent<AudioComponent>()
-				->Sound = ResourceManager::LoadSound("assets/Sounds/monke_2.wav");
-		}, InputBindingState::Down);
-	m_InputSystem->Map(KEY_SPACE, "PlaySound3", [&](DataStream)
-		{
-			Entity e = m_World->CreateEntity();
-			e.AddComponent<AudioComponent>()
-				->Sound = ResourceManager::LoadSound("assets/Sounds/Marcus_Poggers.wav");
-		}, InputBindingState::Down);
+	*/
+
+	Entity floor = m_World->CreateEntity();
+	floor.AddComponent<PhysicsBodyComponent>()->Dynamic = false;
+	auto floorTransform = floor.AddComponent<TransformComponent>();
+	floorTransform->Position = { 0, resolution.y - 20 };
+	floorTransform->Scale = { resolution.x, 10 };
+
+	auto floorSprite = floor.AddComponent<SpriteComponent>();
+	floorSprite->Sprite = ResourceManager::LoadTexture("");
 }
 
 void Game::Run()
@@ -123,7 +155,8 @@ void Game::Update(float deltaTime)
 	ClearBackground({ 10, 10, 10, 255 });
 
 	m_World->Update(deltaTime);
-
+	DrawGUI();
+	
 	EndDrawing();
 }
 
@@ -135,3 +168,18 @@ void Game::Quit()
 }
 
 bool Game::IsRunning() const { return m_Running; }
+
+void Game::DrawGUI()
+{
+	GuiGroupBox({ 10, 50, 130, 180 }, "Dino State");
+
+	if(GuiButton({ 20, 60, 110, 30 }, "Idle")) MessageBus::eventBus()->Send("PlayerIdle");
+	if(GuiButton({ 20, 100, 110, 30 }, "Run")) MessageBus::eventBus()->Send("PlayerRunning");
+	if(GuiButton({ 20, 140, 110, 30 }, "Hurt")) MessageBus::eventBus()->Send("PlayerHurt");
+	if(GuiButton({ 20, 180, 110, 30 }, "Crouch")) MessageBus::eventBus()->Send("PlayerCrouch");
+
+	GuiLine({ 10, 250, 130, 30 }, "Dino Texture");
+	GuiSpinner({ 10, 260, 130, 30 }, "", &DinoTextureIndex, 0, DinoTextures.size() - 1, false);
+	DinoTextureIndex = clamp(DinoTextureIndex, 0, (int)DinoTextures.size() - 1);
+	m_Player.GetComponent<AnimatedSpriteComponent>()->Sprite = ResourceManager::LoadTexture(DinoTextureBase + DinoTextures[DinoTextureIndex] + ".png");
+}

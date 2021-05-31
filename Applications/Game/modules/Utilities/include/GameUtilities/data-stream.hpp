@@ -7,7 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#if _WIN32
+#if MSVC // _WIN32
 #define _WRITESTREAM(type, streamType) template<> DataStream* write<##type>(##type t) { \
 																		char data[sizeof(##type)]; \
 																		memcpy(data, &t, sizeof(##type)); \
@@ -128,7 +128,7 @@ namespace Utilities
 		template<> DataStream* write<const char*>(const char* c) { _write(StreamType::CHARARRAY, (char*)c, (unsigned int)strlen(c)); return this; }
 		template<> DataStream* write<unsigned char*>(unsigned char* c) { _write(StreamType::CHARARRAY, (char*)c, (unsigned int)strlen((const char*)c)); return this; }
 		template<> DataStream* write<std::string>(std::string s) { _write(StreamType::STRING, (char*)s.c_str(), (unsigned int)s.size()); return this; }
-		template<> DataStream* write<size_t>(size_t t) { write<unsigned int>((unsigned int)t); return this; }
+		// template<> DataStream* write<size_t>(size_t t) { write<unsigned int>((unsigned int)t); return this; }
 
 		_WRITESTREAM(int, StreamType::INT)
 		_WRITESTREAM(unsigned int, StreamType::UINT)
@@ -178,7 +178,7 @@ namespace Utilities
 			char* data = _readArray(StreamType::STRING, &length);
 			return std::string(data, length);
 		}
-		template<> size_t read<size_t>() { return (size_t)read<unsigned int>(); }
+		// template<> size_t read<size_t>() { return (size_t)read<unsigned int>(); }
 
 		_READSTREAM(int, StreamType::INT)
 		_READSTREAM(unsigned int, StreamType::UINT)

@@ -5,8 +5,10 @@ namespace ECS
 {
 	struct TransformComponent
 	{
-		float Rotation		= 0;
-		Vector2 Scale		= { 1, 1 };
-		Vector3 Position	= { 0, 0, 0 };
+		Vector2 Scale;
+		float Rotation;
+		Vector3 Position;
+
+		TransformComponent() : Rotation(0), Scale({ 1, 1 }), Position( { 0, 0, 0 }) { }
 	};
 }

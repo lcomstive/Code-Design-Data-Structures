@@ -31,8 +31,8 @@ void InputSystem::Update(float deltaTime)
 					MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Down));
 		if (IsKeyReleased(mapping.first))
 			for (auto& eventData : mapping.second)
-				if (eventData.second == InputBindingState::Held || eventData.second == InputBindingState::All)
-					MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Held));
+				if (eventData.second == InputBindingState::Up || eventData.second == InputBindingState::All)
+					MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Up));
 	}
 
 	// MAX_GAMEPADS defined in Raylib's config.h
@@ -51,8 +51,8 @@ void InputSystem::Update(float deltaTime)
 						MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Down)->write(i));
 			if (IsGamepadButtonReleased(i, mapping.first))
 				for (auto& eventData : mapping.second)
-					if (eventData.second == InputBindingState::Held || eventData.second == InputBindingState::All)
-						MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Held)->write(i));
+					if (eventData.second == InputBindingState::Up || eventData.second == InputBindingState::All)
+						MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Up)->write(i));
 		}
 
 		// --- GAMEPAD AXIS BINDINGS --- //

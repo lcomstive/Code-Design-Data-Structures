@@ -43,6 +43,9 @@ ResourceID ResourceManager::LoadTexture(std::string filename)
 	ResourceID id = GetNextResourceID();
 	m_ResourcePaths.emplace(filename, id);
 	m_Textures.emplace(id, ::LoadTexture(filename.c_str()));
+
+	GAME_LOG_DEBUG("Loaded texture [" + to_string(id) + "] '" + filename + "'");
+	
 	return id;
 }
 
