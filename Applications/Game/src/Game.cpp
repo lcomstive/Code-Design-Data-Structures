@@ -1,30 +1,19 @@
 #include <Game.hpp>
-#include <iostream>
-#include <raylib.h>
-#include <GLFW/glfw3.h>
+#include <GameEngine/ResourceManager.hpp>
+#include <GameEngine/CommonComponents.hpp>
+#include <Systems/MovingObstacleSystem.hpp>
+#include <Components/ObstacleComponent.hpp>
 
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
 #include <raygui.h> // Immediate-mode GUI
-#include <rlgl.h>
-
-// Components
-#include <Components/AudioComponent.hpp>
-#include <Components/CameraComponent.hpp>
-#include <Components/SpriteComponent.hpp>
-#include <Components/PlayerInputComponent.hpp>
-#include <Components/PhysicsBodyComponent.hpp>
-#include <Components/AnimatedSpriteComponent.hpp>
-
-// Systems
-#include <Systems/AudioSystem.hpp>
-#include <Systems/PhysicsSystem.hpp>
-#include <Systems/AnimationSystem.hpp>
-#include <Systems/PlayerStateSystem.hpp>
-#include <Systems/SpriteRenderSystem.hpp>
 
 using namespace ECS;
 using namespace Utilities;
+
+const float PlayerSize = 7.5f;
+const float FloorScale = 8.0f;
+const float FloorSize = 14.0f; // pixels
 
 const string DinoTextureBase = "assets/DinoCharacters/sheets/DinoSprites - ";
 vector<string> DinoTextures =
@@ -36,71 +25,23 @@ vector<string> DinoTextures =
 };
 int DinoTextureIndex = 0;
 
-Game::Game(const GameArgs& args)
+Game::Game(const ApplicationArgs& args) : Application(args)
 {
-	PROFILE_BEGIN("startup.json");
+	GetWorld()->AddSystem<MovingObstacleSystem>()->MoveSpeed = 250;
 
-	m_World = make_unique<World>();
-	m_DeltaTimer = Timer("Delta Timer", false);
-
-	// Init raylib window
-	InitWindow(args.Width, args.Height, args.Title.c_str());
-
-	unsigned int windowFlags = FLAG_WINDOW_HIGHDPI;
-	if(args.VSync) windowFlags |= FLAG_VSYNC_HINT;
-	if(args.Resizable) windowFlags |= FLAG_WINDOW_RESIZABLE;
-	SetWindowState(windowFlags);
-	SetExitKey(0); // Don't exit when pressing ESCAPE (default)
-
-	Initialise();
-
-	PROFILE_END(); // startup.json
-}
-
-Game::~Game() { Quit(); }
-
-void Game::Initialise()
-{
-	Vector2 dpi = GetWindowScaleDPI();
-	Vector2 resolution =
-	{
-			(float)GetScreenWidth(),
-			(float)GetScreenHeight()
-	};
-
-	Log::Initialize();
-	MessageBus::eventBus()->AddReceiver("LogError", [](DataStream stream) { cerr << "[ERROR] " << stream.read<string>(); });
-
-	rlViewport(0, 0, resolution.x * dpi.x, resolution.y * dpi.y);
-
-	// --- SYSTEMS --- //
-	m_World->AddSystem<AudioSystem>();
-	m_World->AddSystem<AnimationSystem>();
-	m_World->AddSystem<PlayerStateSystem>();
-	m_World->AddSystem<SpriteRenderSystem>();
-	m_InputSystem = m_World->AddSystem<InputSystem>();
-
-	m_World->Initialize();
-
-	// --- CAMERA --- //
-	m_Camera = m_World->CreateEntity();
-	m_Camera.AddComponent<TransformComponent>()->Position = { 0, 0, 0 };
-	CameraComponent* cameraComponent = m_Camera.AddComponent<CameraComponent>();
-
-	cameraComponent->Zoom = 1;
-
+	InputSystem* input = GetInput();
 	// --- INPUT --- //
-	m_InputSystem->Map(KEY_W, "PlayerJump");
-	m_InputSystem->Map(KEY_UP, "PlayerJump");
-	m_InputSystem->Map(KEY_S, "PlayerCrouch", InputBindingState::Held);
-	m_InputSystem->Map(KEY_DOWN, "PlayerCrouch", InputBindingState::Held);
-	m_InputSystem->Map(KEY_S, "PlayerRunning", InputBindingState::Up);
-	m_InputSystem->Map(KEY_DOWN, "PlayerRunning", InputBindingState::Up);
+	input->Map(KEY_W, "PlayerJump");
+	input->Map(KEY_UP, "PlayerJump");
+	input->Map(KEY_S, "PlayerCrouch", InputBindingState::Held);
+	input->Map(KEY_DOWN, "PlayerCrouch", InputBindingState::Held);
+	input->Map(KEY_S, "PlayerRunning", InputBindingState::Up);
+	input->Map(KEY_DOWN, "PlayerRunning", InputBindingState::Up);
 
-	m_InputSystem->Map(KEY_ESCAPE, "KeyQuit", [&](DataStream) { Quit(); });
+	input->Map(KEY_ESCAPE, "KeyQuit", [&](DataStream) { Quit(); });
 
 	// Set default state
-	MessageBus::eventBus()->Send("PlayerRunning");
+	Events()->Send("PlayerRunning");
 
 	/*
 	m_InputSystem->Map(KEY_Q, "PlaySound1", [&](DataStream)
@@ -113,56 +54,43 @@ void Game::Initialise()
 
 	CreateFloors();
 	CreatePlayer();
-}
 
-void Game::Run()
-{
-	PROFILE_BEGIN("runtime.json");
-	m_Running = true;
-	m_DeltaTimer.Start();
-	while (m_Running && !WindowShouldClose())
+	ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
+	ResourceManager::LoadTexture("assets/kenney_pixelplatformer/Tilemap/characters.png");
+	input->Map(MOUSE_BUTTON_LEFT, "SpawnObstacle", [&](DataStream)
 	{
-		m_DeltaTimer.Stop();
-		auto deltaTime = m_DeltaTimer.elapsedTimeMS();
-		m_DeltaTimer.Start();
+		Entity obstacle = GetWorld()->CreateEntity();
+		obstacle.AddComponent<ObstacleComponent>();
 
-		Update(deltaTime.count() / 1000.0f);
+		Vector2 resolution = GetResolution();
+		auto obstacleTransform = obstacle.AddComponent<TransformComponent>();
+		obstacleTransform->Position = { resolution.x, resolution.y / 2.0f };
+		obstacleTransform->Scale = { PlayerSize, PlayerSize };
+		
+		auto sprite = obstacle.AddComponent<AnimatedSpriteComponent>();
+		sprite->Sprite = ResourceManager::LoadTexture("assets/kenney_pixelplatformer/Tilemap/characters.png");
+		sprite->MaxFrames = 3;
+		sprite->TimeBetweenFrames = 200;
+		sprite->ReferenceSize =
+		{
+			0,
+			25,
+			25,
+			25
+		};
 
-		DrawFPS(10, 10);
-	}
-
-	PROFILE_END(); // runtime.json
-
-	Quit();
-	CloseWindow();
+		auto soundComponent = obstacle.AddComponent<AudioComponent>();
+		soundComponent->Sound = ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
+		soundComponent->EndAction = AudioEndAction::Remove;
+	}, InputBindingState::Down);
 }
 
-void Game::Update(float deltaTime)
+void Game::OnUpdate(float deltaTime) { }
+
+void Game::OnDrawGUI()
 {
-	// If window resizes, alter camera viewport to match
-	Vector2 dpi = GetWindowScaleDPI();
-	m_Camera.GetComponent<CameraComponent>()->Viewport = { 0, 0, GetScreenWidth() * dpi.x, GetScreenHeight() * dpi.y };
+	PROFILE_FN();
 
-	BeginDrawing();
-	ClearBackground({ 10, 10, 10, 255 });
-
-	m_World->Update(deltaTime);
-	DrawGUI();
-
-	EndDrawing();
-}
-
-void Game::Quit()
-{
-	if (!IsRunning())
-		return;
-	m_Running = false;
-}
-
-bool Game::IsRunning() const { return m_Running; }
-
-void Game::DrawGUI()
-{
 	GuiGroupBox({ 10, 50, 130, 180 }, "Dino State");
 
 	if (GuiButton({ 20, 60, 110, 30 }, "Idle")) MessageBus::eventBus()->Send("PlayerIdle");
@@ -171,22 +99,20 @@ void Game::DrawGUI()
 	if (GuiButton({ 20, 180, 110, 30 }, "Crouch")) MessageBus::eventBus()->Send("PlayerCrouch");
 
 	GuiLine({ 10, 250, 130, 30 }, "Dino Texture");
-	GuiSpinner({ 10, 260, 130, 30 }, "", &DinoTextureIndex, 0, DinoTextures.size() - 1, false);
+	GuiSpinner({ 10, 260, 130, 30 }, "", &DinoTextureIndex, 0, (int)DinoTextures.size() - 1, false);
 	DinoTextureIndex = clamp(DinoTextureIndex, 0, (int)DinoTextures.size() - 1);
 	m_Player.GetComponent<AnimatedSpriteComponent>()->Sprite = ResourceManager::LoadTexture(DinoTextureBase + DinoTextures[DinoTextureIndex] + ".png");
 }
 
-const float PlayerSize = 7.5f;
-const float FloorScale = 8.0f;
-const float FloorSize = 14.0f; // pixels
-
 void Game::CreatePlayer()
 {
+	PROFILE_FN();
+
 	Vector2 resolution = GetResolution();
 	Vector2 dpi = GetWindowScaleDPI();
 
 	// --- PLAYER --- //
-	m_Player = m_World->CreateEntity();
+	m_Player = GetWorld()->CreateEntity();
 	m_Player.AddComponent<PlayerInputComponent>();
 	m_Player.AddComponent<DebugNameComponent>()->Name = "Player";
 
@@ -212,6 +138,8 @@ void Game::CreatePlayer()
 static const string FloorTilemap = "assets/kenney_pixelplatformer/Tilemap/tiles_packed.png";
 void Game::CreateFloors()
 {
+	PROFILE_FN();
+
 	Vector2 resolution = GetResolution();
 
 	static const int FloorSpriteCount = 20;
@@ -220,7 +148,7 @@ void Game::CreateFloors()
 	float floorY = resolution.y - (FloorSize * FloorScale) / 2.0f;
 	for (int i = 0; i < FloorSpriteCount; i++)
 	{
-		Entity floor = m_World->CreateEntity();
+		Entity floor = GetWorld()->CreateEntity();
 		floor.AddComponent<PhysicsBodyComponent>()->Dynamic = false;
 
 		auto floorTransform = floor.AddComponent<TransformComponent>();
@@ -243,7 +171,7 @@ void Game::CreateFloors()
 
 		for(int j = 0; j < FloorSpriteDepth; j++)
 		{
-			Entity depth = m_World->CreateEntity();
+			Entity depth = GetWorld()->CreateEntity();
 			auto depthTransform = depth.AddComponent<TransformComponent>();
 			depthTransform->Position.y = floorY + (j + 1) * FloorSize * FloorScale;
 			depthTransform->Position.x = floorTransform->Position.x;
@@ -266,5 +194,3 @@ void Game::CreateFloors()
 		GAME_LOG_DEBUG("ADDED FLOOR SPRITE [" + to_string(floor.ID) + "]");
 	}
 }
-
-Vector2 Game::GetResolution() const { return Vector2{ (float)GetScreenWidth(), (float)GetScreenHeight() }; }

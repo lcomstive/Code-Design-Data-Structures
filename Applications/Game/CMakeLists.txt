@@ -2,19 +2,12 @@ project(Game)
 
 include_directories(
 	include # Local include directory
-	${CMAKE_SOURCE_DIR}/DataStructures/include
-	./modules/Utilities
-	./modules/Physics
-	./modules/EntityComponentSystem
+	../GameEngine/include
 	${THIRD_PARTY_DIR}/raygui/src
 )
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 file(GLOB_RECURSE HEADER_FILES "include/*.hpp")
-
-add_subdirectory(modules/Utilities)
-add_subdirectory(modules/Physics)
-add_subdirectory(modules/EntityComponentSystem)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 
@@ -35,10 +28,4 @@ add_custom_command(
 	${ASSET_OUTPUT_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME}
-		DataStructures
-		raylib
-		GameUtilities
-		GamePhysics
-		EntityComponentSystem
-		)
+target_link_libraries(${PROJECT_NAME} GameEngine)
