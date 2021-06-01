@@ -132,7 +132,7 @@ void SpriteRenderSystem::Update(float deltaTime)
 
 		Vector3 camPos = world()->GetComponent<TransformComponent>(pair.first)->Position;
 		cam.target = { camPos.x, camPos.y };
-		cam.offset = camOffset; // Transform so center of screen is (0, 0)
+		// cam.offset = camOffset; // Transform so center of screen is (0, 0)
 
 		BeginMode2D(cam);
 

@@ -9,6 +9,7 @@ struct GameArgs
 {
 	uint32_t Width		= 800;
 	uint32_t Height		= 600;
+	bool Resizable		= true;
 	
 	bool VSync			= true;
 	bool Fullscreen		= false;
@@ -34,8 +35,13 @@ public:
 
 	bool IsRunning() const;
 
+	Vector2 GetResolution() const;
+
 private:
 	void DrawGUI();
 	void Initialise();
 	void Update(float deltaTime);
+
+	void CreatePlayer();
+	void CreateFloors();
 };
