@@ -15,4 +15,5 @@ protected:
 private:
 	void CreatePlayer();
 	void CreateFloors();
+	void PreloadAssets();
 };

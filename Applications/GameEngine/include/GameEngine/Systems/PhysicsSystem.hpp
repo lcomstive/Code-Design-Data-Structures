@@ -14,7 +14,7 @@ public:
 	void Draw() override;
 	void Update(float deltaTime) override;
 
-	Physics::PhysicsWorld* GetWorld();
+	Physics::PhysicsWorld* GetPhysicsWorld();
 	Physics::PhysicsObject* GetPhysicsObject(ECS::EntityID id);
 
 private:

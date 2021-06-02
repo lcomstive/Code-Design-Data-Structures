@@ -13,25 +13,22 @@ string PhysicsBodyComponentName = typeid(PhysicsBodyComponent).name();
 
 void PhysicsSystem::Init()
 {
-	m_World = make_unique<PhysicsWorld>(world());
+	m_World = make_unique<PhysicsWorld>(GetWorld());
 
 	m_ComponentRemoveEventID = MessageBus::eventBus()->AddReceiver("ComponentAdd" + PhysicsBodyComponentName, [&](DataStream stream)
 	{
-		if(stream.read<EntityID>() != world()->ID())
+		if(stream.read<EntityID>() != GetWorld()->ID())
 			return; // Not for this system
 		EntityID entity = stream.read<EntityID>();
 
 		PhysicsObject* body = m_World->Add(entity);
 
-		auto transform = world()->GetComponent<TransformComponent>(entity);
-		auto physicsBody = world()->GetComponent<PhysicsBodyComponent>(entity);
+		auto transform = GetWorld()->GetComponent<TransformComponent>(entity);
+		auto physicsBody = GetWorld()->GetComponent<PhysicsBodyComponent>(entity);
 
 		body->Mass = physicsBody->Mass;
 		body->Velocity = physicsBody->Force;
-		body->Collider = physicsBody->Collider;
-
-		if(transform && body->Collider.width() == 0)
-			body->Collider = AABB::FromCenter(Vector2 { transform->Position.x, transform->Position.y }, transform->Scale);
+		body->Collider = AABB::FromCenter(transform->Position + physicsBody->Offset, transform->Scale * physicsBody->Scale);
 
 		physicsBody->Force = { 0, 0 };
 		
@@ -40,7 +37,7 @@ void PhysicsSystem::Init()
 
 	m_ComponentRemoveEventID = MessageBus::eventBus()->AddReceiver("ComponentRemove" + PhysicsBodyComponentName, [&](DataStream stream)
 	{
-		if(stream.read<EntityID>() != world()->ID())
+		if(stream.read<EntityID>() != GetWorld()->ID())
 			return; // Not for this system
 		EntityID entity = stream.read<EntityID>();
 		m_World->Remove(entity);
@@ -57,10 +54,11 @@ void PhysicsSystem::Update(float deltaTime)
 {
 	for(auto& pair : m_Bodies)
 	{
-		auto pbody = world()->GetComponent<PhysicsBodyComponent>(pair.first);
+		auto pbody = GetWorld()->GetComponent<PhysicsBodyComponent>(pair.first);
 		if(!pbody)
 			return; // TODO: Delete from m_Bodies?
-		pair.second->Collider = pbody->Collider;
+		auto transform = GetWorld()->GetComponent<TransformComponent>(pair.first);
+		pair.second->Collider = AABB::FromCenter(transform->Position + pbody->Offset, transform->Scale * pbody->Scale);
 	}
 
 	m_World->Step(deltaTime);
@@ -81,12 +79,5 @@ void PhysicsSystem::Draw()
 }
 
 
-PhysicsWorld* PhysicsSystem::GetWorld()
-{
-	return m_World.get();
-}
-
-PhysicsObject* PhysicsSystem::GetPhysicsObject(ECS::EntityID id)
-{
-	return m_Bodies[id];
-}
+PhysicsWorld* PhysicsSystem::GetPhysicsWorld()  { return m_World.get(); }
+PhysicsObject* PhysicsSystem::GetPhysicsObject(ECS::EntityID id)  { return m_Bodies[id]; }

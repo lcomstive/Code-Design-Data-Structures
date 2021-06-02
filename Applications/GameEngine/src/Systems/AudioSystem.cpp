@@ -19,10 +19,10 @@ void AudioSystem::Init()
 	MessageBus::eventBus()->AddReceiver("ComponentAdd" + AudioComponentName, [&](DataStream stream)
 		{
 			EntityID worldID = stream.read<EntityID>();
-			if (worldID != world()->ID())
-				return; // Event not in this world/scene
+			if (worldID != GetWorld()->ID())
+				return; // Event not in this GetWorld/scene
 			EntityID entity = stream.read<EntityID>();
-			AudioComponent* audio = world()->GetComponent<AudioComponent>(entity);
+			AudioComponent* audio = GetWorld()->GetComponent<AudioComponent>(entity);
 
 			if (m_PlayingAudio.find(entity) != m_PlayingAudio.end())
 				return;
@@ -34,7 +34,7 @@ void AudioSystem::Init()
 	MessageBus::eventBus()->AddReceiver("RemoveComponent" + AudioComponentName, [&](DataStream stream)
 		{
 			EntityID worldID = stream.read<EntityID>();
-			if (worldID != world()->ID())
+			if (worldID != GetWorld()->ID())
 				return; // Event not for this system
 			EntityID entity = stream.read<EntityID>();
 			m_PlayingAudio.erase(entity);
@@ -50,9 +50,10 @@ void AudioSystem::Update(float deltaTime)
 	
 	PROFILE_FN()
 
-	for(auto it = m_PlayingAudio.rbegin(); it != m_PlayingAudio.rend(); ++it)
+	auto playingAudio = m_PlayingAudio; // Copy incase of modification
+	for(auto it = playingAudio.rbegin(); it != playingAudio.rend(); ++it)
 	{
-  		AudioComponent* audio = world()->GetComponent<AudioComponent>(it->first);
+  		AudioComponent* audio = GetWorld()->GetComponent<AudioComponent>(it->first);
 
 		if(!audio)
 		{
@@ -73,7 +74,7 @@ void AudioSystem::Update(float deltaTime)
 			continue;
 		}
 
-		float& timeLeft = m_PlayingAudio[it->first];
+		float& timeLeft = playingAudio[it->first];
 		timeLeft -= deltaTime;
 		if (timeLeft > 0)
 			continue;
@@ -82,14 +83,14 @@ void AudioSystem::Update(float deltaTime)
 		switch (audio->EndAction)
 		{
 		case AudioEndAction::Destroy:
-			world()->DestroyEntity(it->first);
+			GetWorld()->DestroyEntity(it->first);
 			continue;
 		case AudioEndAction::Loop:
 			timeLeft = GetSoundDuration(sound);
 			PlaySound(sound);
 			continue;
 		case AudioEndAction::Remove:
-			world()->RemoveComponent<AudioComponent>(it->first);
+			GetWorld()->RemoveComponent<AudioComponent>(it->first);
 			continue;
 		case AudioEndAction::Stop:
 			audio->Playing = false;

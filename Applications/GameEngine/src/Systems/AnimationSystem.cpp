@@ -14,7 +14,7 @@ void AnimationSystem::Init()
 	{
 		auto worldID = stream.read<EntityID>();
 		auto entityID = stream.read<EntityID>();
-		auto sprite =  world()->GetComponent<AnimatedSpriteComponent>(entityID);
+		auto sprite = GetWorld()->GetComponent<AnimatedSpriteComponent>(entityID);
 
 		if(m_Timings.find(entityID) != m_Timings.end())
 			m_Timings.emplace(entityID, (float)sprite->TimeBetweenFrames);
@@ -36,7 +36,7 @@ void AnimationSystem::Update(float deltaTime)
 {
 	PROFILE_FN();
 	
-	auto animatedSprites = world()->GetComponents<AnimatedSpriteComponent>();
+	auto animatedSprites = GetWorld()->GetComponents<AnimatedSpriteComponent>();
 
 	for (auto& pair : animatedSprites)
 	{

@@ -1,4 +1,5 @@
 #pragma once
+#if _WIN32
 // windows doesn't play nice with raylib
 // - actually, windows.h also defines some structures like Rectangle
 // to avoid the naming conflicts, define the following flags to 
@@ -53,3 +54,4 @@
 typedef struct tagMSG* LPMSG;
 
 #include <windows.h>
+#endif

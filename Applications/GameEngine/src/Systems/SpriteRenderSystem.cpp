@@ -32,14 +32,14 @@ void SpriteRenderSystem::Init()
 	MessageBus::eventBus()->AddReceiver("ComponentAdd" + CameraComponentName, [&](DataStream stream)
 		{
 			EntityID worldID = stream.read<EntityID>();
-			if (worldID != world()->ID())
+			if (worldID != GetWorld()->ID())
 				return; // Not for this system
 			EntityID entity = stream.read<EntityID>();
 
 			Camera2D camera = { 0 };
-			CameraComponent* component = world()->GetComponent<CameraComponent>(entity);
+			CameraComponent* component = GetWorld()->GetComponent<CameraComponent>(entity);
 			camera.zoom = component->Zoom;
-			auto camTransform = world()->GetComponent<TransformComponent>(entity);
+			auto camTransform = GetWorld()->GetComponent<TransformComponent>(entity);
 			if (camTransform)
 				camera.target = { camTransform->Position.x, camTransform->Position.y };
 			m_Cameras.emplace(entity, camera);
@@ -48,7 +48,7 @@ void SpriteRenderSystem::Init()
 	MessageBus::eventBus()->AddReceiver("ComponentRemove" + CameraComponentName, [&](DataStream stream)
 		{
 			EntityID worldID = stream.read<EntityID>();
-			if (worldID != world()->ID())
+			if (worldID != GetWorld()->ID())
 				return; // Not for this system
 			m_Cameras.erase(stream.read<EntityID>());
 		});
@@ -60,8 +60,8 @@ void SpriteRenderSystem::Draw()
 {
 	PROFILE_FN();
 
-	auto entities = world()->GetComponents<TransformComponent, SpriteComponent>();
-	auto animatedEntities = world()->GetComponents<TransformComponent, AnimatedSpriteComponent>();
+	auto entities = GetWorld()->GetComponents<TransformComponent, SpriteComponent>();
+	auto animatedEntities = GetWorld()->GetComponents<TransformComponent, AnimatedSpriteComponent>();
 
 	vector<SpriteDrawInfo> sortedDrawInfo;
 
@@ -71,8 +71,10 @@ void SpriteRenderSystem::Draw()
 		SpriteComponent* sprite = pair.second.second;
 
 		Vector2 spriteSize = transform->Scale;
+		/*
 		spriteSize.x *= sprite->ReferenceSize.width;
 		spriteSize.y *= sprite->ReferenceSize.height;
+		*/
 
 		sortedDrawInfo.push_back(
 			SpriteDrawInfo
@@ -81,8 +83,8 @@ void SpriteRenderSystem::Draw()
 				transform->Rotation,
 				sprite->Sprite,
 				{
-					transform->Position.x - (spriteSize.x / 2.0f),
-					transform->Position.y - (spriteSize.y / 2.0f),
+					transform->Position.x,
+					transform->Position.y,
 					spriteSize.x,
 					spriteSize.y
 				},
@@ -109,8 +111,10 @@ void SpriteRenderSystem::Draw()
 		}
 
 		Vector2 spriteSize = transform->Scale;
+		/*
 		spriteSize.x *= sprite->ReferenceSize.width;
 		spriteSize.y *= sprite->ReferenceSize.height;
+		*/
 
 		sortedDrawInfo.push_back(
 			SpriteDrawInfo
@@ -139,9 +143,9 @@ void SpriteRenderSystem::Draw()
 	for (auto& pair : m_Cameras)
 	{
 		Camera2D& cam = pair.second;
-		CameraComponent* comp = world()->GetComponent<CameraComponent>(pair.first);
+		CameraComponent* comp = GetWorld()->GetComponent<CameraComponent>(pair.first);
 
-		cam.target = world()->GetComponent<TransformComponent>(pair.first)->Position;
+		cam.target = GetWorld()->GetComponent<TransformComponent>(pair.first)->Position;
 		// cam.offset = camOffset; // Transform so center of screen is (0, 0)
 		Vector2 camCenter = camOffset - cam.target;
 

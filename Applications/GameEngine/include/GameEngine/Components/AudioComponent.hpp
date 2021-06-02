@@ -13,7 +13,7 @@ enum class AudioEndAction : char
 
 struct AudioComponent
 {
-	ResourceID Sound;
+	ResourceID Sound = InvalidResourceID;
 	bool Playing = true;
 	AudioEndAction EndAction = AudioEndAction::Destroy;
 };

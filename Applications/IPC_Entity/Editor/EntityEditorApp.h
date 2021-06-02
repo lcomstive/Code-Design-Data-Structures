@@ -30,5 +30,9 @@ protected:
 	enum { ENTITY_COUNT = 10 };
 	Entity m_entities[ENTITY_COUNT];
 
+#if _WIN32
 	HANDLE h;
+#else
+
+#endif
 };

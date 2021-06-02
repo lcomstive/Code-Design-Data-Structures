@@ -11,6 +11,7 @@ namespace Physics
 		Vector2 m_Gravity;
 
 		std::unordered_map<ECS::EntityID, PhysicsObject> m_Objects;
+		std::unordered_map<ECS::EntityID, bool> m_CollisionLastFrame;
 
 		void BroadphaseCollision();
 

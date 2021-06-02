@@ -1,4 +1,6 @@
 #pragma once
+#include <GameUtilities/messagebus.hpp>
+
 namespace ECS
 {
 	class World;
@@ -17,6 +19,7 @@ namespace ECS
 		virtual void Draw() { }
 		virtual void Destroy() { }
 
-		World* world() { return m_World; }
+		World* GetWorld() { return m_World; }
+		Utilities::MessageBus* Events() { return Utilities::MessageBus::eventBus(); }
 	};
 }

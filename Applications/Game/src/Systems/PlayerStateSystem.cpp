@@ -53,7 +53,7 @@ void PlayerStateSystem::Update(float deltaTime)
 	m_PreviousState = m_State;
 	PlayerStateInfo stateInfo = StateInfo[m_State];
 
-	auto pairs = world()->GetComponents<AnimatedSpriteComponent, PlayerInputComponent>();
+	auto pairs = GetWorld()->GetComponents<AnimatedSpriteComponent, PlayerInputComponent>();
 	for (auto& pair : pairs)
 	{
 		auto sprite = pair.second.first;
@@ -64,3 +64,5 @@ void PlayerStateSystem::Update(float deltaTime)
 		sprite->ReferenceSize.x = sprite->ReferenceSize.width * stateInfo.StartFrame;
 	}
 }
+
+PlayerStateSystem::PlayerState PlayerStateSystem::GetCurrentState() { return m_State; }

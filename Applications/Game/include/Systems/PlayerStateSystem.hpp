@@ -11,6 +11,8 @@ public:
 	void Destroy() override;
 	void Update(float deltaTime) override;
 
+	PlayerState GetCurrentState();
+
 private:
 	unsigned int m_IdleEventID;
 	unsigned int m_HurtEventID;

@@ -51,18 +51,14 @@ Game::Game(const ApplicationArgs& args) : Application(args)
 	CreatePlayer();
 
 	// Pre-load assets on main thread
-	ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
-	ResourceManager::LoadTexture("assets/kenney_pixelplatformer/Tilemap/characters.png");
+	PreloadAssets();
 
-	input->Map(MOUSE_BUTTON_LEFT, "SpawnObstacle", [&](DataStream)
+	input->Map(MOUSE_BUTTON_LEFT, "SpawnObstacle", [&](const DataStream&)
 		{
 			Entity obstacle = GetWorld()->CreateEntity();
 			obstacle.AddComponent<ObstacleComponent>();
 
 			Vector2 resolution = GetResolution();
-			auto obstacleTransform = obstacle.AddComponent<TransformComponent>();
-			obstacleTransform->Position = { resolution.x, m_Player.GetComponent<TransformComponent>()->Position.y - PlayerSize * 15.0f };
-			obstacleTransform->Scale = { PlayerSize, PlayerSize };
 
 			auto sprite = obstacle.AddComponent<AnimatedSpriteComponent>();
 			sprite->Sprite = ResourceManager::LoadTexture("assets/kenney_pixelplatformer/Tilemap/characters.png");
@@ -76,38 +72,26 @@ Game::Game(const ApplicationArgs& args) : Application(args)
 				25
 			};
 
-			auto physicsBody = obstacle.AddComponent<PhysicsBodyComponent>();
-			Vector2 colliderSize = obstacleTransform->Scale * sprite->ReferenceSize.height;
-			Vector2 colliderMin = obstacleTransform->Position - (colliderSize / 3);
-			Vector2 colliderMax = obstacleTransform->Position + (colliderSize / 3);
+			auto obstacleTransform = obstacle.AddComponent<TransformComponent>();
+			obstacleTransform->Position = { resolution.x, m_Player.GetComponent<TransformComponent>()->Position.y - PlayerSize * 15.0f };
+			obstacleTransform->Scale = { PlayerSize * sprite->ReferenceSize.width, PlayerSize * sprite->ReferenceSize.height };
 
-			physicsBody->Collider = AABB(colliderMin, colliderMax);
+			auto pbody = obstacle.AddComponent<PhysicsBodyComponent>();
+			pbody->Scale = { 0.4f, 0.5f };
+			pbody->Offset = { 0, 20 };
+
 			/*
 			auto soundComponent = obstacle.AddComponent<AudioComponent>();
-			soundComponent->Sound = ResourceManager::LoadSound("assets/Sounds/Marcus_Poggers.wav");
+			soundComponent->Sound = obstacleSound;
 			soundComponent->EndAction = AudioEndAction::Remove;
 			*/
 		}, InputBindingState::Down);
-
-	Events()->AddReceiver("PhysicsCollision", [&](DataStream stream)
-		{
-			if (stream.read<EntityID>() != GetWorld()->ID())
-				return; // Not for us?
-
-			EntityID a = stream.read<EntityID>();
-			EntityID b = stream.read<EntityID>();
-
-			if (a == m_Player || b == m_Player)
-				Events()->Send("PlayerHurt");
-		});
 
 	GAME_LOG_DEBUG("Total entity count: " + to_string(GetWorld()->GetEntityCount()));
 }
 
 void Game::OnUpdate(float deltaTime)
 {
-	auto cameraTransform = MainCamera().GetComponent<TransformComponent>();
-	auto playerTransform = m_Player.GetComponent<TransformComponent>();
 	SetWindowTitle(("Game [entities: " + to_string(GetWorld()->GetEntityCount()) + "][DeltaTime: " + to_string(GetFrameTime()) + "]").c_str());
 }
 
@@ -147,9 +131,8 @@ void Game::CreatePlayer()
 	m_Player.AddComponent<DebugNameComponent>()->Name = "Player";
 
 	auto playerTransform = m_Player.AddComponent<TransformComponent>();
-	playerTransform->Scale.x = playerTransform->Scale.y = PlayerSize;
-
 	auto playerSprite = m_Player.AddComponent<AnimatedSpriteComponent>();
+
 	playerSprite->Sprite = ResourceManager::LoadTexture(DinoTextureBase + DinoTextures[DinoTextureIndex] + ".png");
 	Texture texture = ResourceManager::GetTexture(playerSprite->Sprite);
 	playerSprite->MaxFrames = 4;
@@ -161,24 +144,61 @@ void Game::CreatePlayer()
 		resolution.y - FloorSize * FloorScale * 1.825f
 	};
 	playerTransform->ZIndex = 99;
+	playerTransform->Scale = { PlayerSize * texture.height, PlayerSize * texture.height };
 
 	auto physicsBody = m_Player.AddComponent<PhysicsBodyComponent>();
-	Vector2 colliderSize = playerTransform->Scale * (float)texture.height;
-	Vector2 colliderMin = playerTransform->Position - (colliderSize / 3);
-	Vector2 colliderMax = playerTransform->Position + (colliderSize / 3);
+	physicsBody->Scale = { 0.7f, 0.65f };
 
-	physicsBody->Collider = AABB(colliderMin, colliderMax);
-
-	static const float CrouchHeight = 20.0f;
+	static const Vector2 RunningScale = { 0.6f, 0.65f };
+	static const Vector2 CrouchScale = { 0.7f, 0.5f };
+	static const Vector2 CrouchOffset = { 20.0f, 10.0f };
 	Events()->AddReceiver("PlayerCrouch", [=](DataStream stream)
 		{
-			if ((InputBindingState)stream.read<short>() == InputBindingState::Down)
-				physicsBody->Collider = AABB(colliderMin + Vector2{ 0, CrouchHeight }, colliderMax);
+			if ((InputBindingState)stream.read<short>() != InputBindingState::Down)
+				return;
+			physicsBody->Scale = CrouchScale;
+			physicsBody->Offset = CrouchOffset;
 		});
 	Events()->AddReceiver("PlayerRunning", [=](DataStream stream)
 		{
-			physicsBody->Collider = AABB(colliderMin, colliderMax);
+			physicsBody->Scale = RunningScale;
+			physicsBody->Offset = { 0, 0 };
 		});
+
+	Events()->AddReceiver("PhysicsCollision", [&](DataStream stream)
+	{
+		if (stream.read<EntityID>() != GetWorld()->ID())
+			return; // Not for us?
+
+		EntityID a = stream.read<EntityID>();
+		EntityID b = stream.read<EntityID>();
+
+		if (a == m_Player || b == m_Player)
+			Events()->Send("PlayerHurt");
+		else
+			return;
+
+		AudioComponent* audio = nullptr;
+		if(a == m_Player) audio = GetWorld()->AddComponent<AudioComponent>(b);
+		else audio = GetWorld()->AddComponent<AudioComponent>(a);
+
+		if(audio->Sound != InvalidResourceID)
+			return; // Already has audio component
+
+		audio->Sound = ResourceManager::LoadSound("assets/Sounds/Marcus_Poggers.wav");
+		audio->EndAction = AudioEndAction::Remove;
+	});
+
+	Events()->AddReceiver("PhysicsCollisionEnd", [&](DataStream stream)
+	{
+		if(stream.read<EntityID>() != GetWorld()->ID() || // Not for us?
+			stream.read<EntityID>() != m_Player)
+			return;
+
+		if(GetWorld()->GetSystem<PlayerStateSystem>()->GetCurrentState() ==
+				PlayerStateSystem::PlayerState::Hurt)
+			Events()->Send("PlayerRunning", DataStream().write((short)InputBindingState::Down));
+	});
 }
 
 static const string FloorTilemap = "assets/kenney_pixelplatformer/Tilemap/tiles_packed.png";
@@ -205,7 +225,7 @@ void Game::CreateFloors()
 
 		auto floorTransform = floor.AddComponent<TransformComponent>();
 		floorTransform->Position = { initialX + i * FloorSize * FloorScale, floorY };
-		floorTransform->Scale = { FloorScale, FloorScale };
+		floorTransform->Scale = { FloorSize * FloorScale, FloorSize * FloorScale };
 
 		auto floorSprite = floor.AddComponent<AnimatedSpriteComponent>();
 		floorSprite->Sprite = ResourceManager::LoadTexture(FloorTilemap);
@@ -243,4 +263,13 @@ void Game::CreateFloors()
 			};
 		}
 	}
+}
+
+void Game::PreloadAssets()
+{
+	ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
+	ResourceManager::LoadSound("assets/Sounds/Marcus_Poggers.wav");
+
+	ResourceManager::LoadTexture(FloorTilemap);
+	ResourceManager::LoadTexture("assets/kenney_pixelplatformer/Tilemap/characters.png");
 }
