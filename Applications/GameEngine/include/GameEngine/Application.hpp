@@ -36,10 +36,11 @@ public:
 	bool IsRunning() const;
 
 	Vector2 GetResolution() const;
+	Vector2 GetResolutionDPI() const;
 	InputSystem* GetInput() const;
 
 	ECS::Entity& MainCamera();
-	ECS::World* GetWorld() const;
+	ECS::World* GetWorld();
 
 	Utilities::MessageBus* Events() const;
 

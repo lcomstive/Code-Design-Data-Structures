@@ -1,7 +1,7 @@
 #include <map>
 #include <ECS/world.hpp>
 #include <GameUtilities/messagebus.hpp>
-#include <GameEngine/Systems/PlayerStateSystem.hpp>
+#include <Systems/PlayerStateSystem.hpp>
 #include <GameEngine/Components/PlayerInputComponent.hpp>
 #include <GameEngine/Components/AnimatedSpriteComponent.hpp>
 

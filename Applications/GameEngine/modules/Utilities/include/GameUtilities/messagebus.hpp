@@ -9,8 +9,6 @@
 #include <thread>
 #include <GameUtilities/data-stream.hpp>
 
-using namespace std;
-
 namespace Utilities
 {
 	class MessageBus
@@ -19,12 +17,12 @@ namespace Utilities
 		MessageBus();
 		~MessageBus();
 
-		void RemoveReceiver(string event, unsigned int ID);
-		unsigned int AddReceiver(string event, function<void(DataStream)> callback);
+		void RemoveReceiver(std::string event, unsigned int ID);
+		unsigned int AddReceiver(std::string event, std::function<void(DataStream)> callback);
 
-		void Send(string event);
-		void Send(string event, DataStream data);
-		void SendImmediate(string event, DataStream data);
+		void Send(std::string event);
+		void Send(std::string event, DataStream data);
+		void SendImmediate(std::string event, DataStream data);
 
 		void ForceFlush();
 
@@ -36,10 +34,10 @@ namespace Utilities
 	private:
 		struct Message
 		{
-			string event;
+			std::string event;
 			DataStream data;
 
-			Message(string name, DataStream value) : event(name), data(value) { }
+			Message(std::string name, DataStream value) : event(name), data(value) { }
 			
 			static Message empty() { return Message("", DataStream()); }
 		};
@@ -49,14 +47,14 @@ namespace Utilities
 		// key - hashed event name
 		// value
 		//		unsigned int - received ID
-		//		function	 - event callback
-		map<size_t, map<unsigned int, function<void(DataStream)>>> m_Receivers;
-		queue<Message> m_Messages;
+		//		std::function	 - event callback
+		std::map<size_t, std::map<unsigned int, std::function<void(DataStream)>>> m_Receivers;
+		std::queue<Message> m_Messages;
 
-		mutex m_MessageMutex;
-		mutex m_ReceiverMutex;
-		thread m_DispatchThread;
-		atomic_bool m_DispatchThreadShouldRun;
+		std::mutex m_MessageMutex;
+		std::mutex m_ReceiverMutex;
+		std::thread m_DispatchThread;
+		std::atomic_bool m_DispatchThreadShouldRun;
 
 		static MessageBus m_EventBus;
 

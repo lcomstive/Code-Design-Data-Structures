@@ -4,5 +4,4 @@
 #include <GameEngine/Systems/InputSystem.hpp>
 #include <GameEngine/Systems/PhysicsSystem.hpp>
 #include <GameEngine/Systems/AnimationSystem.hpp>
-#include <GameEngine/Systems/PlayerStateSystem.hpp>
 #include <GameEngine/Systems/SpriteRenderSystem.hpp>

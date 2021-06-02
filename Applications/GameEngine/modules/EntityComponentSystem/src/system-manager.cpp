@@ -5,10 +5,13 @@
 using namespace std;
 using namespace ECS;
 
-SystemManager::SystemManager() { m_Systems = map<type_index, System*>(); }
+SystemManager::SystemManager() : m_Systems(map<type_index, System*>()), m_Initialized(false) { }
 
 void SystemManager::Initialize()
 {
+	if(m_Initialized)
+		return;
+	m_Initialized = true;
 	for (auto& iterator : m_Systems)
 		iterator.second->Init();
 }

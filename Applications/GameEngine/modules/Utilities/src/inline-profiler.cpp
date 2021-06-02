@@ -12,8 +12,9 @@ using namespace std;
 using namespace chrono;
 using namespace Utilities;
 
+string InlineProfiler::m_FilePath;
 mutex InlineProfiler::m_FileMutex;
-string InlineProfiler::m_FilePath = "";
+mutex InlineProfiler::m_WriteMutex;
 stringstream InlineProfiler::m_WriteStream;
 unsigned int InlineProfiler::m_WriteCount = 0;
 
@@ -38,8 +39,12 @@ void InlineProfiler::End()
 void InlineProfiler::WriteHeader()
 {
 	m_WriteCount = 0;
-	m_WriteStream = stringstream();
-	m_WriteStream << std::setprecision(3) << fixed;
+
+	{
+		lock_guard guard(m_WriteMutex);
+		m_WriteStream = stringstream();
+		m_WriteStream << std::setprecision(3) << fixed;
+	}
 
 	lock_guard guard(m_FileMutex);
 	ofstream outputFile(m_FilePath, ios::trunc);
@@ -49,12 +54,15 @@ void InlineProfiler::WriteHeader()
 
 void InlineProfiler::WriteFooter()
 {
+	m_WriteMutex.lock();
 	m_WriteStream << " ]}";
+	string output = m_WriteStream.str();
+	m_WriteMutex.unlock();
 
 	lock_guard guard(m_FileMutex);
 	ofstream outputFile(m_FilePath, ios::app);
 	if (outputFile.is_open())
-		outputFile << m_WriteStream.str();
+		outputFile << output;
 }
 
 void InlineProfiler::EndScope(InlineProfileScope& scope)
@@ -69,6 +77,7 @@ void InlineProfiler::EndScope(InlineProfileScope& scope)
 		InlineProfiler::Start();
 	}
 
+	m_WriteMutex.lock();
 	m_WriteStream << ", { ";
 	m_WriteStream << "\"name\": \"" << scope.Name << "\", ";
 	m_WriteStream << "\"cat\": \"PERF\", ";
@@ -81,14 +90,16 @@ void InlineProfiler::EndScope(InlineProfileScope& scope)
 
 	if (++m_WriteCount > WriteCountLimit)
 	{
-		lock_guard guard(m_FileMutex);
+		m_FileMutex.lock();
 		ofstream outputFile(m_FilePath, ios::app);
 		if (outputFile.is_open())
 			outputFile << m_WriteStream.str();
+		m_FileMutex.unlock();
 
 		m_WriteCount = 0;
 		m_WriteStream.str(string());
 	}
+	m_WriteMutex.unlock();
 
 	if (defaultFile)
 		InlineProfiler::End();

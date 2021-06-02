@@ -1,5 +1,6 @@
 #include <Systems/MovingObstacleSystem.hpp>
 #include <Components/ObstacleComponent.hpp>
+#include <ECS/components/transform-component.hpp>
 
 using namespace ECS;
 

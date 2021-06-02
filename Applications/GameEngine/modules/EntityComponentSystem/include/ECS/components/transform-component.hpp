@@ -7,8 +7,9 @@ namespace ECS
 	{
 		Vector2 Scale;
 		float Rotation;
-		Vector3 Position;
+		Vector2 Position;
+		float ZIndex;
 
-		TransformComponent() : Rotation(0), Scale({ 1, 1 }), Position( { 0, 0, 0 }) { }
+		TransformComponent() : ZIndex(0), Rotation(0), Scale({ 1, 1 }), Position( { 0, 0 }) { }
 	};
 }

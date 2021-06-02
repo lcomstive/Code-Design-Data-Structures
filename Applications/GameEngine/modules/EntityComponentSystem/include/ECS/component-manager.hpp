@@ -1,27 +1,24 @@
 #pragma once
+#include <mutex>
 #include <vector>
+#include <thread>
 #include <typeinfo>
 #include <typeindex>
+#include <unordered_map>
 #include <ECS/entity.hpp>
 #include <GameUtilities/inline-profiler.hpp>
 
-// Include common components for easier access //
-#include <ECS/components/transform-component.hpp>
-#include <ECS/components/debug-name-component.hpp>
-
-#define MAD_COMPONENT_ARRAY_DEFAULT_ARRAY_SIZE 512
-
-using namespace std;
-
 namespace ECS
 {
+	const unsigned int ComponentArrayDefaultArraySize = 512;
+	
 	class ComponentManager
 	{
 	private:
 		struct ComponentData
 		{
-			vector<void*> Instances;
-			unordered_map<EntityID, unsigned int> EntityIndex;
+			std::vector<void*> Instances;
+			std::unordered_map<EntityID, unsigned int> EntityIndex;
 
 			ComponentData() { }
 
@@ -39,17 +36,23 @@ namespace ECS
 				EntityIndex.emplace(entity, (unsigned int)Instances.size() - 1);
 			}
 
+			void Prepare(unsigned int count)
+			{
+				Instances.reserve(Instances.size() + count);
+				EntityIndex.reserve(EntityIndex.size() + count);
+			}
+
 			template<typename T>
 			T* Get(EntityID entity) { return (T*)(Has(entity) ? Instances[EntityIndex[entity]] : nullptr); }
 
 			template<typename T>
-			unordered_map<EntityID, T*> Get()
+			std::unordered_map<EntityID, T*> Get()
 			{
-				unordered_map<EntityID, T*> map;
-				map.reserve(Instances.size());
+				std::unordered_map<EntityID, T*> entityMap;
+				entityMap.reserve(Instances.size());
 				for(const auto& pair : EntityIndex)
-					map.emplace(pair.first, (T*)Instances[pair.second]);
-				return map;
+					entityMap.emplace(pair.first, (T*)Instances[pair.second]);
+				return entityMap;
 			}
 
 			bool Has(EntityID entity) { return EntityIndex.find(entity) != EntityIndex.end(); }
@@ -72,7 +75,7 @@ namespace ECS
 
 			vector<EntityID> entities()
 			{
-				vector<EntityID> entities;
+				std::vector<EntityID> entities;
 				entities.resize(EntityIndex.size());
 				unsigned int i = 0;
 				for (const auto& pair : EntityIndex)
@@ -83,16 +86,30 @@ namespace ECS
 
 		unsigned int m_WorldID;
 
-		unordered_map<type_index, ComponentData> m_ComponentArrays;
-		unordered_map<EntityID, vector<type_index>> m_EntityComponents;
+		std::mutex m_ComponentsMutex;
+		std::unordered_map<type_index, ComponentData> m_ComponentArrays;
+		std::unordered_map<EntityID, vector<type_index>> m_EntityComponents;
 
 	public:
 		ComponentManager(unsigned int worldID) : m_WorldID(worldID) { }
 
 		void Destroy()
 		{
+			std::lock_guard guard(m_ComponentsMutex);
+
 			for (auto& iterator : m_ComponentArrays)
 				iterator.second.Destroy();
+		}
+
+		template<typename T>
+		void Prepare(unsigned int count)
+		{
+			type_index type = typeid(T);
+			std::lock_guard guard(m_ComponentsMutex);
+
+			if(m_ComponentArrays.find(type) == m_ComponentArrays.end())
+				m_ComponentArrays.emplace(type, ComponentData());
+			m_ComponentArrays[type].Prepare(count);
 		}
 
 		template<typename T>
@@ -103,6 +120,8 @@ namespace ECS
 				return component;
 			
 			type_index type = typeid(T);
+
+			m_ComponentsMutex.lock();
 			if (m_ComponentArrays.find(type) == m_ComponentArrays.end())
 				m_ComponentArrays.emplace(type, ComponentData());
 			component = new T();
@@ -111,6 +130,7 @@ namespace ECS
 			if (m_EntityComponents.find(id) == m_EntityComponents.end())
 				m_EntityComponents.emplace(id, vector<type_index>());
 			m_EntityComponents[id].push_back(type);
+			m_ComponentsMutex.unlock();
 
 			string typeName = string(type.name());
 			Utilities::MessageBus::eventBus()->Send("ComponentAdd" + string(type.name()), Utilities::DataStream().write(m_WorldID)->write(id));
@@ -155,6 +175,7 @@ namespace ECS
 		unordered_map<EntityID, T*> Get()
 		{
 			type_index type = typeid(T);
+			std::lock_guard guard(m_ComponentsMutex);
 			return m_ComponentArrays.find(type) == m_ComponentArrays.end() ?
 				unordered_map<EntityID, T*>() : m_ComponentArrays[type].Get<T>();
 		}
@@ -232,10 +253,13 @@ namespace ECS
 			if (m_ComponentArrays.find(type) == m_ComponentArrays.end())
 				return;
 
+			m_ComponentsMutex.lock();
+
 			vector<type_index>& components = m_EntityComponents[id];
 			components.erase(remove(components.begin(), components.end(), type), components.end());
 			m_ComponentArrays[type].Remove(id);
 
+			m_ComponentsMutex.unlock();
 			Utilities::MessageBus::eventBus()->Send("ComponentRemove" + string(type.name()), Utilities::DataStream().write(m_WorldID)->write(id));
 		}
 
@@ -245,6 +269,7 @@ namespace ECS
 			if (Empty(id))
 				return;
 
+			std::lock_guard guard(m_ComponentsMutex);
 			for (const auto& type : m_EntityComponents[id])
 			{
 				ComponentData* componentArray = &m_ComponentArrays[type];

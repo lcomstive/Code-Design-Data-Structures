@@ -60,6 +60,9 @@ namespace ECS
 			void ClearComponents() { if(world) world->ClearComponents(ID); }
 
 			bool isValid() { return world != nullptr; }
+
+			bool operator ==(EntityID id) { return id == ID; }
+			bool operator !=(EntityID id) { return id != ID; }
 		};
 
 		World();
@@ -232,3 +235,6 @@ namespace ECS
 
 	typedef struct World::Entity Entity;
 }
+
+inline bool operator ==(const ECS::EntityID& id, const ECS::Entity& e) { return id == e.ID; }
+inline bool operator !=(const ECS::EntityID& id, const ECS::Entity& e) { return id != e.ID; }

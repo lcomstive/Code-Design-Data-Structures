@@ -2,6 +2,8 @@
 
 #include <raylib.h>
 #include <ECS/world.hpp>
+#include <GameUtilities/math.hpp>
+#include <GameUtilities/messagebus.hpp>
 #include <DataStructures/QuickSort.hpp>
 #include <ECS/components/transform-component.hpp>
 #include <GameEngine/Components/SpriteComponent.hpp>
@@ -56,9 +58,9 @@ void SpriteRenderSystem::Init()
 
 void SpriteRenderSystem::Draw()
 {
-	PROFILE_FN()
+	PROFILE_FN();
 
-		auto entities = world()->GetComponents<TransformComponent, SpriteComponent>();
+	auto entities = world()->GetComponents<TransformComponent, SpriteComponent>();
 	auto animatedEntities = world()->GetComponents<TransformComponent, AnimatedSpriteComponent>();
 
 	vector<SpriteDrawInfo> sortedDrawInfo;
@@ -68,6 +70,10 @@ void SpriteRenderSystem::Draw()
 		TransformComponent* transform = pair.second.first;
 		SpriteComponent* sprite = pair.second.second;
 
+		Vector2 spriteSize = transform->Scale;
+		spriteSize.x *= sprite->ReferenceSize.width;
+		spriteSize.y *= sprite->ReferenceSize.height;
+
 		sortedDrawInfo.push_back(
 			SpriteDrawInfo
 			{
@@ -75,10 +81,10 @@ void SpriteRenderSystem::Draw()
 				transform->Rotation,
 				sprite->Sprite,
 				{
-					transform->Position.x,
-					transform->Position.y,
-					sprite->ReferenceSize.width * transform->Scale.x,
-					sprite->ReferenceSize.height * transform->Scale.y
+					transform->Position.x - (spriteSize.x / 2.0f),
+					transform->Position.y - (spriteSize.y / 2.0f),
+					spriteSize.x,
+					spriteSize.y
 				},
 				sprite->ReferenceSize
 			});
@@ -102,6 +108,10 @@ void SpriteRenderSystem::Draw()
 			srcRect.y += sprite->ReferenceSize.height;
 		}
 
+		Vector2 spriteSize = transform->Scale;
+		spriteSize.x *= sprite->ReferenceSize.width;
+		spriteSize.y *= sprite->ReferenceSize.height;
+
 		sortedDrawInfo.push_back(
 			SpriteDrawInfo
 			{
@@ -111,8 +121,8 @@ void SpriteRenderSystem::Draw()
 				{
 					transform->Position.x,
 					transform->Position.y,
-					sprite->ReferenceSize.width * transform->Scale.x,
-					sprite->ReferenceSize.height * transform->Scale.y
+					spriteSize.x,
+					spriteSize.y
 				},
 				srcRect
 			});
@@ -131,9 +141,9 @@ void SpriteRenderSystem::Draw()
 		Camera2D& cam = pair.second;
 		CameraComponent* comp = world()->GetComponent<CameraComponent>(pair.first);
 
-		Vector3 camPos = world()->GetComponent<TransformComponent>(pair.first)->Position;
-		cam.target = { camPos.x, camPos.y };
+		cam.target = world()->GetComponent<TransformComponent>(pair.first)->Position;
 		// cam.offset = camOffset; // Transform so center of screen is (0, 0)
+		Vector2 camCenter = camOffset - cam.target;
 
 		BeginMode2D(cam);
 
@@ -152,13 +162,24 @@ void SpriteRenderSystem::Draw()
 			if (texture.width <= 0 || texture.height <= 0)
 				continue; // Texture isn't found?
 
+			Vector2 center =
+			{
+				drawInfo.DestRect.x,
+				drawInfo.DestRect.y,
+			};
+			Vector2 distance = camCenter - center;
+			
+			if(abs(distance.x) > (comp->Viewport.width / 1.75f) || // Cull out of x bounds
+			   abs(distance.y) > (comp->Viewport.height / 1.75f))  // Cull out of y bounds
+				continue; // Consider yourself culled
+
 			DrawTexturePro(
 				texture,
 				drawInfo.SourceRect,
 				drawInfo.DestRect,
 				{
 					drawInfo.DestRect.width / 2.0f,
-					drawInfo.DestRect.height / 2.0f
+					drawInfo.DestRect.height / 2.0f,
 				},
 				drawInfo.Rotation,
 				drawInfo.Tint

@@ -11,6 +11,9 @@ namespace ECS
 {
 	class SystemManager
 	{
+		bool m_Initialized;
+		map<type_index, System*> m_Systems;
+
 	public:
 		SystemManager();
 
@@ -25,6 +28,8 @@ namespace ECS
 
 			T* system = new T();
 			m_Systems.emplace(typeid(T), system);
+			if(m_Initialized)
+				system->Init();
 			return system;
 		}
 
@@ -46,15 +51,12 @@ namespace ECS
 		{
 			if (!Has<T>())
 				return nullptr;
-			return m_Systems[typeid(T)];
+			return (T*)m_Systems[typeid(T)];
 		}
 
 		void Draw();
 		void Update(float deltaTime);
 
 		vector<System*> all();
-
-	private:
-		map<type_index, System*> m_Systems;
 	};
 }

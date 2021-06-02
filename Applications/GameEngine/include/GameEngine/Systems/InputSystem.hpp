@@ -12,6 +12,7 @@ enum class InputBindingState : short
 	Down = 0x001,
 	Held = 0x010,
 	Up	 = 0x100,
+	DownOrHeld = Held | Down,
 	All	 = Down | Held | Up
 };
 

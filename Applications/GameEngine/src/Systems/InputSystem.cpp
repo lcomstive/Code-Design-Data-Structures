@@ -24,15 +24,15 @@ void InputSystem::Update(float deltaTime)
 	{
 		if (IsKeyDown(mapping.first))
 			for (auto& eventData : mapping.second)
-				if (eventData.second == InputBindingState::Held || eventData.second == InputBindingState::All)
+				if ((short)eventData.second & (short)InputBindingState::Held)
 					MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Held));
 		if (IsKeyPressed(mapping.first))
 			for (auto& eventData : mapping.second)
-				if (eventData.second == InputBindingState::Down || eventData.second == InputBindingState::All)
+				if ((short)eventData.second & (short)InputBindingState::Down)
 					MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Down));
 		if (IsKeyReleased(mapping.first))
 			for (auto& eventData : mapping.second)
-				if (eventData.second == InputBindingState::Up || eventData.second == InputBindingState::All)
+				if ((short)eventData.second & (short)InputBindingState::Up)
 					MessageBus::eventBus()->Send(eventData.first, DataStream().write<short>((short)InputBindingState::Up));
 	}
 

@@ -1,8 +1,7 @@
 #pragma once
 #include <map>
 #include <ECS/system.hpp>
-
-struct PhysicsBodyData; // Forward declaration. Defined in physac.h
+#include <Physics/PhysicsWorld.hpp>
 
 class PhysicsSystem : public ECS::System
 {
@@ -15,8 +14,12 @@ public:
 	void Draw() override;
 	void Update(float deltaTime) override;
 
+	Physics::PhysicsWorld* GetWorld();
+	Physics::PhysicsObject* GetPhysicsObject(ECS::EntityID id);
+
 private:
 	unsigned int m_ComponentRemoveEventID;
 
-	map<ECS::EntityID, PhysicsBodyData*> m_Bodies;
+	unique_ptr<Physics::PhysicsWorld> m_World;
+	map<ECS::EntityID, Physics::PhysicsObject*> m_Bodies;
 };

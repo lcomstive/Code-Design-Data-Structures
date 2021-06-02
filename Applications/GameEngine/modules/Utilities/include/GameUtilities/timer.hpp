@@ -3,9 +3,6 @@
 #include <functional>
 #include <GameUtilities/messagebus.hpp>
 
-using namespace std;
-using namespace chrono;
-
 namespace Utilities
 {
 	class Timer
@@ -14,28 +11,28 @@ namespace Utilities
 		bool EventOnStopped = false;
 
 		Timer(const char* name, bool autostart = true);
-		Timer(string name = "Timer", bool autostart = true);
+		Timer(std::string name = "Timer", bool autostart = true);
 		Timer(const Timer& timer);
 		~Timer();
 
 		void Start();
 		void Stop();
-		void AddStoppedCallback(function<void(Timer)> callback);
+		void AddStoppedCallback(std::function<void(Timer)> callback);
 
-		microseconds elapsedTime();
-		milliseconds elapsedTimeMS();
+		std::chrono::microseconds elapsedTime();
+		std::chrono::milliseconds elapsedTimeMS();
 
-		string name();
+		std::string name();
 		bool stopped();
-		time_point<high_resolution_clock> endTime();
-		time_point<high_resolution_clock> startTime();
+		std::chrono::time_point<std::chrono::high_resolution_clock> endTime();
+		std::chrono::time_point<std::chrono::high_resolution_clock> startTime();
 
 	private:
 		bool m_Stopped;
-		string m_Name;
-		microseconds m_ElapsedTime;
-		vector<function<void(Timer)>> m_Callbacks;
-		time_point<high_resolution_clock> m_EndTime;
-		time_point<high_resolution_clock> m_StartTime;
+		std::string m_Name;
+		std::chrono::microseconds m_ElapsedTime;
+		std::vector<std::function<void(Timer)>> m_Callbacks;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_EndTime;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTime;
 	};
 }

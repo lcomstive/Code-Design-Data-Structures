@@ -6,17 +6,16 @@
 #include <GameUtilities/log.hpp>
 #include <GameUtilities/timer.hpp>
 
-using namespace std;
-
 namespace Utilities
 {
 	class InlineProfiler
 	{
 	private:
-		static string m_FilePath;
-		static mutex m_FileMutex;
+		static std::string m_FilePath;
+		static std::mutex m_FileMutex;
+		static std::mutex m_WriteMutex;
 		static unsigned int m_WriteCount;
-		static stringstream m_WriteStream;
+		static std::stringstream m_WriteStream;
 
 		static const unsigned int WriteCountLimit = 500;
 
@@ -28,19 +27,19 @@ namespace Utilities
 		{
 			bool Debug;
 			Timer Timer;
-			string Name;
-			thread::id Thread;
+			std::string Name;
+			std::thread::id Thread;
 
 			InlineProfileScope(string name, bool debug = false) : Timer(name), Name(name), Debug(debug)
 			{
-				Thread = this_thread::get_id();
+				Thread = std::this_thread::get_id();
 				if(Debug)
 					GAME_LOG_DEBUG("[PROFILE] Start '" + Name + "'");
 			}
 
 			InlineProfileScope(Utilities::Timer& timer, bool debug = false) : Timer(timer), Name(timer.name()), Debug(debug)
 			{
-				Thread = this_thread::get_id();
+				Thread = std::this_thread::get_id();
 				if (Debug)
 					GAME_LOG_DEBUG("[PROFILE] Start '" + Timer.name() + "'");
 			}
@@ -53,7 +52,7 @@ namespace Utilities
 					return;
 				Timer.Stop();
 				if(Debug)
-					GAME_LOG_DEBUG("[PROFILE] End '" + Name + "' - " + to_string(Timer.elapsedTimeMS().count()) + "ms");
+					GAME_LOG_DEBUG("[PROFILE] End '" + Name + "' - " + std::to_string(Timer.elapsedTimeMS().count()) + "ms");
 				InlineProfiler::EndScope(*this);
 			}
 		};

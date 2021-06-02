@@ -28,7 +28,7 @@ Application::~Application() { Quit(); }
 
 void Application::Initialise()
 {
-	Vector2 resolution = GetResolution();
+	Vector2 resolution = GetResolutionDPI();
 
 	Log::Initialize();
 	Events()->AddReceiver("LogError", [](DataStream stream) { cerr << "[ERROR] " << stream.read<string>(); });
@@ -36,18 +36,19 @@ void Application::Initialise()
 	rlViewport(0, 0, (int)resolution.x, (int)resolution.y);
 
 	// --- SYSTEMS --- //
+	m_InputSystem = m_World->AddSystem<InputSystem>();
+
+	m_World->AddSystem<PhysicsSystem>();
 	m_World->AddSystem<AudioSystem>();
 	m_World->AddSystem<AnimationSystem>();
-	m_World->AddSystem<PlayerStateSystem>();
 	m_World->AddSystem<SpriteRenderSystem>();
-	m_InputSystem = m_World->AddSystem<InputSystem>();
 
 	m_World->Initialize();
 
 	// --- CAMERA --- //
 	m_Camera = m_World->CreateEntity();
-	m_Camera.AddComponent<CameraComponent>();
 	m_Camera.AddComponent<TransformComponent>();
+	m_Camera.AddComponent<CameraComponent>();
 
 	GAME_LOG_DEBUG("Game Engine initialised");
 }
@@ -56,13 +57,7 @@ void Application::Run()
 {
 	m_Running = true;
 	while (m_Running && !WindowShouldClose())
-	{
 		Update(GetFrameTime());
-
-#ifndef NDEBUG
-		DrawFPS(10, 10);
-#endif
-	}
 
 	PROFILE_END(); // runtime.json
 
@@ -77,7 +72,7 @@ void Application::Update(float deltaTime)
 
 	// Ensure main camera viewport is same as window size
 	// TODO: Find window resize callback to use instead of setting every frame
-	Vector2 resolution = GetResolution();
+	Vector2 resolution = GetResolutionDPI();
 	m_Camera.GetComponent<CameraComponent>()->Viewport = { 0, 0, resolution.x, resolution.y };
 
 	BeginDrawing();
@@ -112,12 +107,13 @@ bool Application::IsRunning() const { return m_Running; }
 
 ECS::Entity& Application::MainCamera() { return m_Camera; }
 
-Vector2 Application::GetResolution() const
+Vector2 Application::GetResolution() const { return Vector2 { (float)GetScreenWidth(), (float)GetScreenHeight() }; }
+Vector2 Application::GetResolutionDPI() const
 {
 	Vector2 dpi = GetWindowScaleDPI();
 	return Vector2{ GetScreenWidth() * dpi.x, GetScreenHeight() * dpi.y };
 }
 
+World* Application::GetWorld() { return m_World.get(); }
 InputSystem* Application::GetInput() const { return m_InputSystem; }
-World* Application::GetWorld() const { return m_World.get(); }
 MessageBus* Application::Events() const { return MessageBus::eventBus(); }
