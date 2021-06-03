@@ -58,6 +58,9 @@ void PhysicsSystem::Update(float deltaTime)
 		if(!pbody)
 			return; // TODO: Delete from m_Bodies?
 		auto transform = GetWorld()->GetComponent<TransformComponent>(pair.first);
+
+		pbody->Force = { 0, 0 };
+		pair.second->Velocity += pbody->Force;
 		pair.second->Collider = AABB::FromCenter(transform->Position + pbody->Offset, transform->Scale * pbody->Scale);
 	}
 
@@ -81,3 +84,7 @@ void PhysicsSystem::Draw()
 
 PhysicsWorld* PhysicsSystem::GetPhysicsWorld()  { return m_World.get(); }
 PhysicsObject* PhysicsSystem::GetPhysicsObject(ECS::EntityID id)  { return m_Bodies[id]; }
+
+Vector2& PhysicsSystem::GetGravity() { return m_World->GetGravity(); }
+void PhysicsSystem::SetGravity(Vector2 gravity) { m_World->SetGravity(gravity); }
+void PhysicsSystem::SetGravity(Vector2& gravity) { m_World->SetGravity(gravity); }

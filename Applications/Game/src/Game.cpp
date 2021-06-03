@@ -125,6 +125,8 @@ void Game::CreatePlayer()
 	Vector2 resolution = GetResolution();
 	Vector2 dpi = GetWindowScaleDPI();
 
+	// GetWorld()->GetSystem<PhysicsSystem>()->SetGravity(Vector2 { 0, 1.0f });
+
 	// --- PLAYER --- //
 	m_Player = GetWorld()->CreateEntity();
 	m_Player.AddComponent<PlayerInputComponent>();
@@ -185,7 +187,7 @@ void Game::CreatePlayer()
 		if(audio->Sound != InvalidResourceID)
 			return; // Already has audio component
 
-		audio->Sound = ResourceManager::LoadSound("assets/Sounds/Marcus_Poggers.wav");
+		audio->Sound = ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
 		audio->EndAction = AudioEndAction::Remove;
 	});
 

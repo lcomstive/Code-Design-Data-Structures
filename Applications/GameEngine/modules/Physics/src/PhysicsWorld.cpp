@@ -19,14 +19,18 @@ void PhysicsWorld::Step(float deltaTime)
 {
 	for(auto& pair : m_Objects)
 	{
-		PhysicsObject& obj = pair.second;
+		PhysicsObject* obj = &pair.second;
 		auto transform = m_EntityWorld->GetComponent<TransformComponent>(pair.first);
 
-		Vector2 force = obj.Mass * m_Gravity;
-		Vector2 acceleration = force / obj.Mass;
+		if(!transform)
+			continue;
 
-		obj.Velocity += acceleration * deltaTime;
-		transform->Position += obj.Velocity * deltaTime;
+		Vector2 force = obj->Mass * m_Gravity;
+		Vector2 acceleration = force / obj->Mass;
+
+		Vector2 vel = acceleration * deltaTime;
+		obj->Velocity += vel;
+		transform->Position += obj->Velocity * deltaTime;
 	}
 
 	BroadphaseCollision();
@@ -92,3 +96,5 @@ PhysicsObject* PhysicsWorld::Add(ECS::EntityID id)
 
 World* PhysicsWorld::GetEntityWorld() { return m_EntityWorld; }
 unsigned int PhysicsWorld::GetObjectCount() { return (unsigned int)m_Objects.size(); }
+Vector2& PhysicsWorld::GetGravity() { return m_Gravity; }
+void PhysicsWorld::SetGravity(Vector2& v) { m_Gravity = v; }

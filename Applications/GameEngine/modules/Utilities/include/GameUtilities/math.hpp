@@ -12,15 +12,15 @@ inline Vector2 operator /(Vector2 a, float const& b) { return Vector2{ a.x / b, 
 inline Vector2 operator *(float b, Vector2 const& a) { return Vector2{ a.x * b, a.y * b }; }
 inline Vector2 operator /(float b, Vector2 const& a) { return Vector2{ a.x / b, a.y / b }; }
 
-inline Vector2 operator +=(Vector2 a, Vector2 const& b) { return a + b; }
-inline Vector2 operator -=(Vector2 a, Vector2 const& b) { return a - b; }
-inline Vector2 operator *=(Vector2 a, Vector2 const& b) { return a * b; }
-inline Vector2 operator /=(Vector2 a, Vector2 const& b) { return a / b; }
+inline Vector2 operator +=(Vector2& a, Vector2 const& b) { return a = (a + b); }
+inline Vector2 operator -=(Vector2& a, Vector2 const& b) { return a = (a - b); }
+inline Vector2 operator *=(Vector2& a, Vector2 const& b) { return a = (a * b); }
+inline Vector2 operator /=(Vector2& a, Vector2 const& b) { return a = (a / b); }
 
-inline Vector2 operator *=(Vector2 a, float const& b) { return a * b; }
-inline Vector2 operator /=(Vector2 a, float const& b) { return a / b; }
-inline Vector2 operator *=(float b, Vector2 const& a) { return a * b; }
-inline Vector2 operator /=(float b, Vector2 const& a) { return a / b; }
+inline Vector2 operator *=(Vector2& a, float const& b) { return a = a * b; }
+inline Vector2 operator /=(Vector2& a, float const& b) { return a = a / b; }
+inline Vector2 operator *=(const float& b, Vector2& a) { return a = a * b; }
+inline Vector2 operator /=(const float& b, Vector2& a) { return a = a / b; }
 
 // --- VECTOR3 --- //
 inline Vector3 operator +(Vector3 a, Vector3 const& b) { return Vector3Add(a, b); }

@@ -24,6 +24,9 @@ namespace Physics
 		ECS::World* GetEntityWorld();
 		unsigned int GetObjectCount();
 
+		Vector2& GetGravity();
+		void SetGravity(Vector2& v);
+
 		void Remove(ECS::EntityID id);
 		PhysicsObject* Add(ECS::EntityID id);
 	};
