@@ -22,7 +22,7 @@ void PhysicsWorld::Step(float deltaTime)
 		PhysicsObject* obj = &pair.second;
 		auto transform = m_EntityWorld->GetComponent<TransformComponent>(pair.first);
 
-		if(!transform)
+		if(!transform || obj->Trigger || obj->Static || obj->Mass < 0.0001f)
 			continue;
 
 		Vector2 force = obj->Mass * m_Gravity;
@@ -36,6 +36,20 @@ void PhysicsWorld::Step(float deltaTime)
 	BroadphaseCollision();
 }
 
+static string GetCollisionType(PhysicsObject* obj)
+{
+	if(obj->Trigger)
+		return "Trigger";
+	return "Collision";
+}
+
+static string GetCollisionType(PhysicsObject* a, PhysicsObject* b)
+{
+	if(a->Trigger || b->Trigger)
+		return "Trigger";
+	return "Collision";
+}
+
 void PhysicsWorld::BroadphaseCollision()
 {
 	auto copy = m_Objects;
@@ -44,18 +58,21 @@ void PhysicsWorld::BroadphaseCollision()
 		bool collided = false;
 		for(auto& pair2 : copy)
 		{
-			if(pair.first == pair2.first)
+			if(pair.first == pair2.first || // Same object
+				(pair.second.Trigger || pair.second.Static) && (pair2.second.Trigger || pair2.second.Static))
 				continue; // Same object
 
-			if(pair.second.Collider.Intersects(pair2.second.Collider)) {
-				MessageBus::eventBus()->Send("PhysicsCollision",
+			if(pair.second.Collider.Intersects(pair2.second.Collider))
+			{
+				string collisionType = GetCollisionType(&pair.second, &pair2.second);
+				MessageBus::eventBus()->Send("Physics" + collisionType,
 											 DataStream()
 											 .write(m_EntityWorld->ID())
 											 ->write(pair.first)
 											 ->write(pair2.first));
 
 				if(!m_CollisionLastFrame[pair.first]) // Collision started this frame
-					MessageBus::eventBus()->Send("PhysicsCollisionStart",
+					MessageBus::eventBus()->Send("Physics" + collisionType + "Start",
 								  DataStream()
 								  .write(m_EntityWorld->ID())
 								  ->write(pair.first)
@@ -70,7 +87,7 @@ void PhysicsWorld::BroadphaseCollision()
 		if(m_CollisionLastFrame[pair.first] && !collided) // Stopped collision this/last? frame
 		{
 			m_CollisionLastFrame[pair.first] = false;
-			MessageBus::eventBus()->Send("PhysicsCollisionEnd",
+			MessageBus::eventBus()->Send("Physics" + GetCollisionType(&pair.second) + "End",
 										 DataStream()
 											 .write(m_EntityWorld->ID())
 											 ->write(pair.first));

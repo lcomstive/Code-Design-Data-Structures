@@ -26,9 +26,11 @@ void PhysicsSystem::Init()
 		auto transform = GetWorld()->GetComponent<TransformComponent>(entity);
 		auto physicsBody = GetWorld()->GetComponent<PhysicsBodyComponent>(entity);
 
+		if(transform)
+			body->Collider = AABB::FromCenter(transform->Position + physicsBody->Offset, transform->Scale * physicsBody->Scale);
+
 		body->Mass = physicsBody->Mass;
 		body->Velocity = physicsBody->Force;
-		body->Collider = AABB::FromCenter(transform->Position + physicsBody->Offset, transform->Scale * physicsBody->Scale);
 
 		physicsBody->Force = { 0, 0 };
 		
@@ -55,13 +57,20 @@ void PhysicsSystem::Update(float deltaTime)
 	for(auto& pair : m_Bodies)
 	{
 		auto pbody = GetWorld()->GetComponent<PhysicsBodyComponent>(pair.first);
-		if(!pbody)
-			return; // TODO: Delete from m_Bodies?
 		auto transform = GetWorld()->GetComponent<TransformComponent>(pair.first);
+		if(!pbody || !transform)
+			return; // TODO: Delete from m_Bodies?
 
-		pbody->Force = { 0, 0 };
+		pair.second->Mass = pbody->Mass;
+		pair.second->Trigger = pbody->Trigger;
+		pair.second->Static = pbody->Static;
+
 		pair.second->Velocity += pbody->Force;
-		pair.second->Collider = AABB::FromCenter(transform->Position + pbody->Offset, transform->Scale * pbody->Scale);
+		pbody->Force = { 0, 0 };
+
+		pair.second->Collider = AABB::FromCenter(
+				transform->Position + pbody->Offset,
+				transform->Scale * pbody->Scale);
 	}
 
 	m_World->Step(deltaTime);

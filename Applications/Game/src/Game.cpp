@@ -29,7 +29,13 @@ int DinoTextureIndex = 0;
 
 Game::Game(const ApplicationArgs& args) : Application(args)
 {
-	GetWorld()->GetSystem<PhysicsSystem>()->DrawDebugInfo = true;
+	auto physicsSystem = GetWorld()->GetSystem<PhysicsSystem>();
+	physicsSystem->SetGravity(Vector2 { 0, 1000.0f });
+
+#ifndef NDEBUG
+	physicsSystem->DrawDebugInfo = true;
+#endif
+
 	GetWorld()->AddSystem<PlayerStateSystem>();
 	GetWorld()->AddSystem<MovingObstacleSystem>()->MoveSpeed = 250;
 
@@ -79,6 +85,7 @@ Game::Game(const ApplicationArgs& args) : Application(args)
 			auto pbody = obstacle.AddComponent<PhysicsBodyComponent>();
 			pbody->Scale = { 0.4f, 0.5f };
 			pbody->Offset = { 0, 20 };
+			pbody->Trigger = true;
 
 			/*
 			auto soundComponent = obstacle.AddComponent<AudioComponent>();
@@ -102,8 +109,8 @@ void Game::OnDrawGUI()
 	GuiGroupBox({ 10, 50, 130, 180 }, "Dino State");
 
 	if (GuiButton({ 20, 60, 110, 30 }, "Idle")) MessageBus::eventBus()->Send("PlayerIdle");
-	if (GuiButton({ 20, 100, 110, 30 }, "Run")) MessageBus::eventBus()->Send("PlayerRunning");
-	if (GuiButton({ 20, 140, 110, 30 }, "Hurt")) MessageBus::eventBus()->Send("PlayerHurt");
+	if (GuiButton({ 20, 100, 110, 30 }, "Run")) MessageBus::eventBus()->Send("PlayerRunning", DataStream().write((short)InputBindingState::Down));
+	if (GuiButton({ 20, 140, 110, 30 }, "Hurt")) MessageBus::eventBus()->Send("PlayerHurt", DataStream().write((short)InputBindingState::Down));
 	if (GuiButton({ 20, 180, 110, 30 }, "Crouch")) MessageBus::eventBus()->Send("PlayerCrouch", DataStream().write((short)InputBindingState::Down));
 
 	GuiLine({ 150, 50, 130, 30 }, "Dino Texture");
@@ -124,8 +131,6 @@ void Game::CreatePlayer()
 
 	Vector2 resolution = GetResolution();
 	Vector2 dpi = GetWindowScaleDPI();
-
-	// GetWorld()->GetSystem<PhysicsSystem>()->SetGravity(Vector2 { 0, 1.0f });
 
 	// --- PLAYER --- //
 	m_Player = GetWorld()->CreateEntity();
@@ -150,6 +155,7 @@ void Game::CreatePlayer()
 
 	auto physicsBody = m_Player.AddComponent<PhysicsBodyComponent>();
 	physicsBody->Scale = { 0.7f, 0.65f };
+	physicsBody->Mass = 0;
 
 	static const Vector2 RunningScale = { 0.6f, 0.65f };
 	static const Vector2 CrouchScale = { 0.7f, 0.5f };
@@ -167,7 +173,31 @@ void Game::CreatePlayer()
 			physicsBody->Offset = { 0, 0 };
 		});
 
-	Events()->AddReceiver("PhysicsCollision", [&](DataStream stream)
+	Events()->AddReceiver("PlayerJump", [=](DataStream stream)
+	{
+		if(physicsBody->Mass > 0.001f)
+			return;
+		physicsBody->Mass = 50.0f;
+		physicsBody->Force = { 0, -750.0f };
+	});
+
+	Events()->AddReceiver("PhysicsCollision", [=](DataStream stream)
+	{
+		if(stream.read<EntityID>() != GetWorld()->ID() || // Not for us?
+			stream.read<EntityID>() != m_Player) // Not the player
+			return;
+
+		// Only collisions with player is floor, so stop "jumping"
+		physicsBody->Mass = 0;
+
+		playerTransform->Position =
+		{
+				200,
+				resolution.y - FloorSize * FloorScale * 1.825f
+		};
+	});
+
+	Events()->AddReceiver("PhysicsTriggerStart", [&](DataStream stream)
 	{
 		if (stream.read<EntityID>() != GetWorld()->ID())
 			return; // Not for us?
@@ -191,11 +221,10 @@ void Game::CreatePlayer()
 		audio->EndAction = AudioEndAction::Remove;
 	});
 
-	Events()->AddReceiver("PhysicsCollisionEnd", [&](DataStream stream)
+	Events()->AddReceiver("PhysicsTriggerEnd", [&](DataStream stream)
 	{
-		if(stream.read<EntityID>() != GetWorld()->ID() || // Not for us?
-			stream.read<EntityID>() != m_Player)
-			return;
+		if(stream.read<EntityID>() != GetWorld()->ID())
+			return; // Not for us?
 
 		if(GetWorld()->GetSystem<PlayerStateSystem>()->GetCurrentState() ==
 				PlayerStateSystem::PlayerState::Hurt)
@@ -210,7 +239,7 @@ void Game::CreateFloors()
 
 	Vector2 resolution = GetResolution();
 
-	static const int FloorSpriteCount = 100; // 20;
+	static const int FloorSpriteCount = 200;
 	static const int FloorSpriteDepth = 10;
 
 	// Create enough memory for the floor sprites
@@ -223,7 +252,7 @@ void Game::CreateFloors()
 	for (int i = 0; i < FloorSpriteCount; i++)
 	{
 		Entity floor = GetWorld()->CreateEntity();
-		// floor.AddComponent<PhysicsBodyComponent>()->Dynamic = false;
+		floor.AddComponent<PhysicsBodyComponent>()->Static = true;
 
 		auto floorTransform = floor.AddComponent<TransformComponent>();
 		floorTransform->Position = { initialX + i * FloorSize * FloorScale, floorY };
