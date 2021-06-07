@@ -41,8 +41,8 @@ Game::Game(const ApplicationArgs& args) : Application(args)
 
 	InputSystem* input = GetInput();
 	// --- INPUT --- //
-	input->Map(KEY_W, "PlayerJump");
-	input->Map(KEY_UP, "PlayerJump");
+	input->Map(KEY_W, "PlayerJump", InputBindingState::Down);
+	input->Map(KEY_UP, "PlayerJump", InputBindingState::Down);
 	input->Map(KEY_S, "PlayerCrouch", InputBindingState::DownOrHeld);
 	input->Map(KEY_DOWN, "PlayerCrouch", InputBindingState::DownOrHeld);
 	input->Map(KEY_S, "PlayerRunning", InputBindingState::Up);
