@@ -27,7 +27,7 @@ namespace LCDS
 	template<typename T>
 	class DoubleLinkedList
 	{
-		uint32_t m_NodeCount;
+		unsigned int m_NodeCount;
 		DoubleLinkedListNode<T>* m_Head;
 		DoubleLinkedListNode<T>* m_Tail;
 
@@ -39,10 +39,10 @@ namespace LCDS
 		DoubleLinkedList() : m_NodeCount(0), m_Head(nullptr), m_Tail(nullptr) { }
 
 		// Copy array into linked list
-		DoubleLinkedList(T values[], uint32_t count) : DoubleLinkedList<T>()
+		DoubleLinkedList(T values[], unsigned int count) : DoubleLinkedList<T>()
 		{
 			// Add all values as nodes, in order
-			for (uint32_t i = 0; i < count; i++)
+			for (unsigned int i = 0; i < count; i++)
 				Add(values[i]);
 		}
 
@@ -72,7 +72,7 @@ namespace LCDS
 		DoubleLinkedListNode<T>* GetTail() const { return m_Tail; }
 		DoubleLinkedListNode<T>* GetNode(const uint32_t index)
 		{
-			uint32_t traversed = 0;
+			unsigned int traversed = 0;
 			auto currentNode = GetHead();
 			while (traversed < index)
 			{
@@ -85,7 +85,7 @@ namespace LCDS
 			return currentNode;
 		}
 
-		uint32_t Size() const { return m_NodeCount; }
+		unsigned int Size() const { return m_NodeCount; }
 
 		// --- NODE OPERATIONS --- //
 
@@ -140,7 +140,7 @@ namespace LCDS
 		}
 
 		// Deletes node from list
-		bool RemoveAt(uint32_t index)
+		bool RemoveAt(unsigned int index)
 		{
 			auto node = GetNode(index);
 			if (node == nullptr)
@@ -180,6 +180,16 @@ namespace LCDS
 
 		void Sort(std::function<bool(T&, T&)> comparitor = nullptr)
 		{
+			T** data = Data();
+			Sorting::QuickSort(data, 0, Size() - 1, comparitor);
+
+			delete[] data;
+		}
+
+		// Creates a new dynamic array of references to each value.
+		// Calling function needs to delete the return value!
+		T** Data()
+		{
 			T** values = new T*[Size()];
 			
 			auto node = GetHead();
@@ -190,13 +200,11 @@ namespace LCDS
 				node = node->Next;
 			}
 
-			Sorting::QuickSort(values, 0, Size() - 1, comparitor);
-
-			delete[] values;
+			return values;
 		}
 
 		// --- OPERATORS --- //
-		DoubleLinkedListNode<T>* operator [](uint32_t index) const { return GetNode(index); }
+		DoubleLinkedListNode<T>* operator [](unsigned int index) const { return GetNode(index); }
 	};
 
 	template<typename T>

@@ -23,7 +23,10 @@ void PhysicsWorld::Step(float deltaTime)
 		auto transform = m_EntityWorld->GetComponent<TransformComponent>(pair.first);
 
 		if(!transform || obj->Trigger || obj->Static || obj->Mass < 0.0001f)
+		{
+			obj->Velocity = { 0, 0 };
 			continue;
+		}
 
 		Vector2 force = obj->Mass * m_Gravity;
 		Vector2 acceleration = force / obj->Mass;

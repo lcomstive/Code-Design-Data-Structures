@@ -5,7 +5,7 @@
 #define MAX_MESSAGES_PER_UPDATE 20
 
 #ifndef NDEBUG
-#define MESSAGEBUS_DEBUG
+// #define MESSAGEBUS_DEBUG
 // const bool DefaultShouldBufferMessages = false;
 const bool DefaultShouldBufferMessages = true;
 #else

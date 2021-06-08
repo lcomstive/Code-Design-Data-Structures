@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 #include <functional>
 
 namespace LCDS
@@ -17,20 +16,17 @@ namespace LCDS
 			}
 
 			template<typename T>
-			bool QuickSortDefaultComparitor(T& a, T& b) { return a >= b; }
-
-			template<typename T>
 			int QuickSortPartition(T** values, int low, int high, std::function<bool(T&, T&)> comparitor = nullptr)
 			{
 				T pivot = *values[high];
 				int index = low - 1;
 
+				if(!comparitor) // Set default comparitor
+					comparitor = [](T& a, T& b) { return a >= b; };
+
 				for (int j = low; j < high; j++)
 				{
-
-					if (comparitor && comparitor(*values[j], pivot))
-						continue;
-					if (!comparitor && QuickSortDefaultComparitor(*values[j], pivot))
+					if (comparitor(*values[j], pivot))
 						continue;
 
 					index++;

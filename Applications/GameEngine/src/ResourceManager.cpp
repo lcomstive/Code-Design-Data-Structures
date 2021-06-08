@@ -19,6 +19,7 @@ ResourceID ResourceManager::LoadSound(std::string filename)
 	ResourceID id = GetNextResourceID();
 	m_ResourcePaths.emplace(filename, id);
 	m_Sounds.emplace(id, ::LoadSound(filename.c_str())); // Raylib
+	GAME_LOG_DEBUG("Loaded sound [" + to_string(id) + "] " + filename);
 	return id;
 }
 
@@ -32,7 +33,7 @@ void ResourceManager::UnloadSound(ResourceID id)
 
 Sound ResourceManager::GetSound(ResourceID id)
 {
-	return m_Sounds.find(id) == m_Sounds.end() ? Sound {} : m_Sounds[id];
+	return (id == InvalidResourceID || m_Sounds.find(id) == m_Sounds.end()) ? Sound {} : m_Sounds[id];
 }
 
 // --- TEXTURE --- //

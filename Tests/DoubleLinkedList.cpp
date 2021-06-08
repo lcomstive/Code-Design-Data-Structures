@@ -60,7 +60,7 @@ TEST_CASE("Double linked list can be created from int array", "[double-linked-li
 		REQUIRE(linkedList.GetNode(index)->Value != TestArray[index]);
 	}
 
-	SECTION("Sort using default comparitor")
+	SECTION("Sort using default comparitor (quicksort)")
 	{
 		linkedList.Sort();
 

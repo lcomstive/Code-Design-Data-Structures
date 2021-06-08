@@ -7,7 +7,8 @@ include_directories(
 	)
 
 file(GLOB TEST_FILES "./*.cpp")
+file(GLOB TEST_FILE_HEADERS "./*.hpp")
 
-add_executable(${PROJECT_NAME} ${TEST_FILES})
+add_executable(${PROJECT_NAME} ${TEST_FILES} ${TEST_FILE_HEADERS})
 
 target_link_libraries(${PROJECT_NAME} DataStructures)

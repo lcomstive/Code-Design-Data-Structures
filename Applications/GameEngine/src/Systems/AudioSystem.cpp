@@ -27,9 +27,11 @@ void AudioSystem::Init()
 			if (m_PlayingAudio.find(entity) != m_PlayingAudio.end())
 				return;
 
+			// WARNING: Getting sound via ResourceManager after adding component requires MessageBus to buffer messages.
+			//			Otherwise audioComponent->Sound is invalid
 			Sound sound = ResourceManager::GetSound(audio->Sound);
 			m_PlayingAudio.emplace(entity, GetSoundDuration(sound));
-			PlaySoundMulti(sound);
+			PlaySoundMulti(ResourceManager::GetSound(audio->Sound));
 		});
 	MessageBus::eventBus()->AddReceiver("RemoveComponent" + AudioComponentName, [&](DataStream stream)
 		{

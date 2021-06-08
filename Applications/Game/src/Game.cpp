@@ -17,6 +17,8 @@ const float PlayerSize = 7.5f;
 const float FloorScale = 8.0f;
 const float FloorSize = 14.0f; // pixels
 
+ResourceID ObstacleHitSoundID = InvalidResourceID;
+
 const string DinoTextureBase = "assets/DinoCharacters/sheets/DinoSprites - ";
 vector<string> DinoTextures =
 {
@@ -30,7 +32,7 @@ int DinoTextureIndex = 0;
 Game::Game(const ApplicationArgs& args) : Application(args)
 {
 	auto physicsSystem = GetWorld()->GetSystem<PhysicsSystem>();
-	physicsSystem->SetGravity(Vector2 { 0, 1000.0f });
+	physicsSystem->SetGravity(Vector2 { 0, 500.0f });
 
 #ifndef NDEBUG
 	physicsSystem->DrawDebugInfo = true;
@@ -122,7 +124,7 @@ void Game::OnDrawGUI()
 	DrawFPS(10, 10);
 
 	auto t = m_Player.GetComponent<TransformComponent>();
-	DrawCircle(t->Position.x, t->Position.y, 2.5f, BLUE);
+	DrawCircle((int)t->Position.x, (int)t->Position.y, 2.5f, BLUE);
 }
 
 void Game::CreatePlayer()
@@ -148,7 +150,7 @@ void Game::CreatePlayer()
 	playerTransform->Position =
 	{
 		200,
-		resolution.y - FloorSize * FloorScale * 1.825f
+		resolution.y - FloorSize * FloorScale * 1.85f
 	};
 	playerTransform->ZIndex = 99;
 	playerTransform->Scale = { PlayerSize * texture.height, PlayerSize * texture.height };
@@ -177,8 +179,8 @@ void Game::CreatePlayer()
 	{
 		if(physicsBody->Mass > 0.001f)
 			return;
-		physicsBody->Mass = 50.0f;
-		physicsBody->Force = { 0, -750.0f };
+		physicsBody->Mass = 100.0f;
+		physicsBody->Force = { 0, -500.0f };
 	});
 
 	Events()->AddReceiver("PhysicsCollision", [=](DataStream stream)
@@ -186,14 +188,15 @@ void Game::CreatePlayer()
 		if(stream.read<EntityID>() != GetWorld()->ID() || // Not for us?
 			stream.read<EntityID>() != m_Player) // Not the player
 			return;
+		EntityID other = stream.read<EntityID>();
 
 		// Only collisions with player is floor, so stop "jumping"
 		physicsBody->Mass = 0;
 
 		playerTransform->Position =
 		{
-				200,
-				resolution.y - FloorSize * FloorScale * 1.825f
+			200,
+			resolution.y - FloorSize * FloorScale * 1.85f
 		};
 	});
 
@@ -217,7 +220,7 @@ void Game::CreatePlayer()
 		if(audio->Sound != InvalidResourceID)
 			return; // Already has audio component
 
-		audio->Sound = ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
+		audio->Sound = ObstacleHitSoundID;
 		audio->EndAction = AudioEndAction::Remove;
 	});
 
@@ -298,7 +301,7 @@ void Game::CreateFloors()
 
 void Game::PreloadAssets()
 {
-	ResourceManager::LoadSound("assets/Sounds/monke_1.wav");
+	ObstacleHitSoundID = ResourceManager::LoadSound("assets/Sounds/Mason_Ah.wav");
 	ResourceManager::LoadSound("assets/Sounds/Marcus_Poggers.wav");
 
 	ResourceManager::LoadTexture(FloorTilemap);
