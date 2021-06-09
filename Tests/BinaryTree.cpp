@@ -76,13 +76,9 @@ struct Folder
 	Folder() : Name(), Files() { }
 	Folder(string name) : Name(name), Files() { }
 	Folder(string name, vector<string> files) : Name(name), Files(files) { }
-
-	bool operator ==(const Folder& other) { return Name.compare(other.Name) == 0; }
-	bool operator !=(const Folder& other) { return Name.compare(other.Name) != 0; }
-
-	bool operator >(const Folder& other) { return Name > other.Name; }
-	bool operator <(const Folder& other) { return Name < other.Name; }
 };
+inline int operator -(const Folder& a, const Folder& b) { return a.Name.compare(b.Name); }
+inline bool operator ==(const Folder& a, const Folder& b) { return a.Name.compare(b.Name) == 0; }
 
 vector<Folder> FileSystem =
 {
@@ -95,6 +91,12 @@ vector<Folder> FileSystem =
 void PrintFolders(BinaryTreeNode<Folder>* node, int depth = 0)
 {
 	Console::Initialise(); // Initialize if not already
+
+	if (!node)
+	{
+		Console::WriteLine("EMPTY TREE", ConsoleColour::Red);
+		return;
+	}
 
 	string prefix;
 	for (int i = 0; i < depth; i++)
@@ -117,6 +119,7 @@ void PrintFolders(BinaryTree<Folder>& tree) { PrintFolders(tree.GetRoot(), 0); }
 TEST_CASE("Binary tree can be created from non-standard struct", "[binary-tree]")
 {
 	BinaryTree<Folder> tree(FileSystem.data(), (unsigned int)FileSystem.size());
+	tree.SetComparisonFunction([](Folder& a, Folder& b) { return a - b; });
 
 	REQUIRE(tree.Size() == FileSystem.size());
 	REQUIRE(tree.Contains(FileSystem[2]));
@@ -137,23 +140,43 @@ TEST_CASE("Binary tree can be created from non-standard struct", "[binary-tree]"
 
 	SECTION("Adding many elements")
 	{
-		Folder receipts("Receipts", { "Overpriced Mayonnaise", "Ugandan Knuckles NFT" });
-
 		tree.Insert(Folder("Programmy Things", { "Unity", "Unreal Engine" }));
-		tree.Insert(receipts);
+		tree.Insert(Folder("Receipts", { "Overpriced Mayonnaise", "Ugandan Knuckles NFT" }));
 		tree.Insert(Folder("Music", { "Sweet Home Alabama", "Never Gonna Give You Up" }));
 
 		REQUIRE(tree.Size() == (FileSystem.size() + 3));
+	}
 
-		PrintFolders(tree);
+	SECTION("Search tree by value")
+	{
+		Folder receipts("Receipts", { "Overpriced Mayonnaise", "Ugandan Knuckles NFT" });
 
+		tree.Insert(receipts);
+		REQUIRE(tree.Search(receipts)->Value.Name.compare(receipts.Name) == 0);
 
-		SECTION("Removing element")
+		SECTION("Removing element by value")
 		{
 			tree.Remove(receipts);
 
-			REQUIRE(tree.Size() == (FileSystem.size() + 2));
+			REQUIRE(tree.Size() == FileSystem.size());
 		}
+	}
+
+	SECTION("Search tree by selector")
+	{
+		Folder& searchFolder = FileSystem[(int)FileSystem.size() / 2];
+		auto node = tree.Search([&](Folder& x) { return x == searchFolder; });
+
+		REQUIRE(node != nullptr);
+		REQUIRE(node->Value == searchFolder);
+		REQUIRE(node->Value.Files.size() == searchFolder.Files.size());
+	}
+	
+	SECTION("Clear tree")
+	{
+		tree.Clear();
+		REQUIRE(tree.Size() == 0);
+		REQUIRE(tree.GetRoot() == nullptr);
 	}
 
 	SECTION("Duplicate entries are not added")
