@@ -4,6 +4,7 @@ include_directories(
 	include # Local include directory
 	../GameEngine/include
 	${THIRD_PARTY_DIR}/raygui/src
+	${CMAKE_SOURCE_DIR}/DataStructures/include
 )
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")

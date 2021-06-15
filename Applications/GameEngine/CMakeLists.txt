@@ -3,10 +3,10 @@ project(GameEngine)
 include_directories(
 	SYSTEM
 	include # Local include directory
-	${CMAKE_SOURCE_DIR}/DataStructures/include
-	./modules/Utilities
 	./modules/Physics
+	./modules/Utilities
 	./modules/EntityComponentSystem
+	${CMAKE_SOURCE_DIR}/DataStructures/include
 )
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
@@ -22,9 +22,8 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "Source" FILES ${SOUR
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Headers" FILES ${HEADER_FILES})
 
 target_link_libraries(${PROJECT_NAME}
-		DataStructures
 		raylib
-		GameUtilities
 		GamePhysics
+		GameUtilities
 		EntityComponentSystem
 		)

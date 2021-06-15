@@ -9,6 +9,4 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Headers" FILES $
 add_library(${PROJECT_NAME} STATIC  ${SOURCE_FILES} ${HEADER_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
-target_link_libraries(${PROJECT_NAME}
-        DataStructures
-        EntityComponentSystem)
+target_link_libraries(${PROJECT_NAME} EntityComponentSystem)

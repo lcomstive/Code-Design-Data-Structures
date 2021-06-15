@@ -2,16 +2,17 @@
 #include <map>
 #include <string>
 #include <raylib.h>
+#include <DataStructures/HashTable.hpp>
 
 typedef unsigned int ResourceID;
 const ResourceID InvalidResourceID = (unsigned int)-1;
 
 class ResourceManager
 {
-	static std::map<ResourceID, Sound> m_Sounds;
-	static std::map<ResourceID, Texture> m_Textures;
+	static LCDS::HashTable<ResourceID, Sound> m_Sounds;
+	static LCDS::HashTable<ResourceID, Texture> m_Textures;
 
-	static std::map<std::string, ResourceID> m_ResourcePaths;
+	static LCDS::HashTable<std::string, ResourceID> m_ResourcePaths;
 
 	static ResourceID GetNextResourceID();
 public:

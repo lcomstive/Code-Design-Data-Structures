@@ -61,6 +61,19 @@ namespace LCDS
 			return node;
 		}
 
+		// Returns how deep the tree goes from this node
+		int GetDepth(BinaryTreeNode<T>* node)
+		{
+			if (!node)
+				return 0;
+			int leftDepth = GetDepth(node->Left);
+			int rightDepth = GetDepth(node->Right);
+			if (leftDepth > rightDepth)
+				return leftDepth + 1;
+			return rightDepth + 1;
+		}
+		int GetDepth() { return GetDepth(m_Root); }
+
 		// --- OPERATIONS --- //
 
 #pragma region Insert
