@@ -26,6 +26,18 @@ protected:
 	int m_screenWidth;
 	int m_screenHeight;
 
-	// an array of an unknown number of entities
-	std::vector<Entity> m_entities;
+
+	// NOTE: m_Entities and m_EntityCount are shared memory
+
+	// Array of entities
+	Entity* m_Entities;
+
+	// Amount of entities in array
+	unsigned int* m_EntityCount;
+
+#if _WIN32
+	HANDLE m_SharedMemHandle;
+#else
+
+#endif
 };

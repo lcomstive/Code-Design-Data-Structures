@@ -50,6 +50,8 @@
 #define NODEFERWINDOWPOS  // DeferWindowPos routines
 #define NOMCX             // Modem Configuration Extensions
 
+#define WIN32_LEAN_AND_MEAN // Lessen bloat of windows include
+
 /* Type required before windows.h inclusion  */
 typedef struct tagMSG* LPMSG;
 

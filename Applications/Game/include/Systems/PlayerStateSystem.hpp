@@ -14,10 +14,10 @@ public:
 	PlayerState GetCurrentState();
 
 private:
-	unsigned int m_IdleEventID;
-	unsigned int m_HurtEventID;
-	unsigned int m_CrouchEventID;
-	unsigned int m_RunningEventID;
+	unsigned int m_IdleEventID = 0;
+	unsigned int m_HurtEventID = 0;
+	unsigned int m_CrouchEventID = 0;
+	unsigned int m_RunningEventID = 0;
 	
 	PlayerState m_State = PlayerState::Idle;
 	PlayerState m_PreviousState = PlayerState::Crouching;

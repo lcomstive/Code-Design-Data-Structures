@@ -1,10 +1,13 @@
 #include <string> // to_string
 #include <raylib.h>
 #include <iostream>
+#include <cmath> // std::lerp
 #include <DataStructures/BinaryTree.hpp>
 
 #define RAYGUI_IMPLEMENTATION
+#pragma warning(push, 0) // Disable warnings from raygui.h
 #include <raygui.h>
+#pragma warning(pop)
 
 using namespace std;
 
@@ -25,7 +28,7 @@ Vector2 LastMousePos = { 0, 0 };
 
 int main()
 {
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT);
+	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 600, "Binary Tree Viewer");
 
 	Cam = {};
@@ -39,14 +42,21 @@ int main()
 
 	LastMousePos = GetMousePosition();
 
-	Tree.Insert(69);
-	Tree.Insert(40);
-	Tree.Insert(42);
-	Tree.Insert(21);
-	Tree.Insert(99);
-	Tree.Insert(100);
-	Tree.Insert(80);
-	Tree.Insert(82);
+	// Randomly generated values
+	const vector<int> ExampleValues =
+	{
+		69, 40, 42, 21,
+		99, 100, 80, 82,
+		79, 60, 50, 55,
+		44, 20, 105, 37,
+		27, 85, 58, 97,
+		4,	99,	50,	14,	60,
+		24,	13,	53,	78,	98,
+		48,	100,25,	82,	1,
+		88,	2,	84,	8,	51,
+	};
+	for (int value : ExampleValues)
+		Tree.Insert(value);
 
 	while (!WindowShouldClose())
 	{
@@ -132,34 +142,56 @@ void HandleCameraMovement()
 	};
 }
 
-const Color NormalNodeColour = GRAY;
+const Color NormalNodeColourLeft  = { 127, 93, 244, 255 };
+const Color NormalNodeColourRight = { 93, 227, 104, 255 };
 const Color HighlightNodeColour = { 255, 200, 200, 255 };
 
-const int WidthBetweenNodes = 30;
-const int NodeHeightScaling = 10;
+const int WidthBetweenNodes = 50;
+const int InitialVerticalSpacing = 200;
 
-void DrawTreeNode(LCDS::BinaryTreeNode<int>* currentNode, int x, int y, int depth)
+unsigned char ByteLerp(unsigned char a, unsigned char b, float value) { return unsigned char(a + value * (b - a)); }
+
+Color ColorLerp(Color a, Color b, float value)
+{
+	return
+	{
+		ByteLerp(a.r, b.r, value),
+		ByteLerp(a.g, b.g, value),
+		ByteLerp(a.b, b.b, value),
+		ByteLerp(a.a, b.a, value)
+	};
+}
+
+void DrawTreeNode(LCDS::BinaryTreeNode<int>* currentNode, int x, int y, float verticalSpacing)
 {
 	if (!currentNode)
 		return;
 
 	if (currentNode->Left)
 	{
-		DrawLine(x, y, x + WidthBetweenNodes, y + NodeHeightScaling * depth, GRAY);
-		DrawTreeNode(currentNode->Left, x + WidthBetweenNodes, y + NodeHeightScaling * depth, depth - 1);
+		DrawLine(x, y, x + WidthBetweenNodes, (int)(y + verticalSpacing), GRAY);
+		DrawTreeNode(currentNode->Left, x + WidthBetweenNodes, y + verticalSpacing, verticalSpacing * 0.6f);
 	}
 
 	if (currentNode->Right)
 	{
-		DrawLine(x, y, x + WidthBetweenNodes, y - NodeHeightScaling * depth, GRAY);
-		DrawTreeNode(currentNode->Right, x + WidthBetweenNodes, y - NodeHeightScaling * depth, depth - 1);
+		DrawLine(x, y, x + WidthBetweenNodes, (int)(y - verticalSpacing), GRAY);
+		DrawTreeNode(currentNode->Right, x + WidthBetweenNodes, y - verticalSpacing, verticalSpacing * 0.6f);
 	}
 
-	DrawCircle(x, y, 10, HighlightedValue == currentNode->Value ? HighlightNodeColour : NormalNodeColour);
+	float lerpModifier = GetTime() + Tree.GetDepth(currentNode) / (float)Tree.GetDepth();
+	lerpModifier = (sin(lerpModifier) + 1) * 0.5f;  // Remap sin from -1 <-> -1 to 0 <-> 1
+
+	Color nodeColor = ColorLerp(
+		NormalNodeColourLeft,
+		NormalNodeColourRight,
+		lerpModifier
+	);
+	DrawCircle(x, y, 10, HighlightedValue == currentNode->Value ? HighlightNodeColour : nodeColor);
 	DrawText(to_string(currentNode->Value).c_str(), x, y, 10, RAYWHITE);
 }
 
 void DrawTree()
 {
-	DrawTreeNode(Tree.GetRoot(), 0, 0, Tree.GetDepth());
+	DrawTreeNode(Tree.GetRoot(), 0, 0, InitialVerticalSpacing);
 }

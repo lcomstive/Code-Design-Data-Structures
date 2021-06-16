@@ -13,6 +13,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Add libraries
+add_subdirectory(DataStructures)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/raylib)
 add_subdirectory(Applications/GameEngine)
 
@@ -25,6 +26,7 @@ option(DATASTRUCTURES_BUILD_TESTS "Build tests for the DataStructures library" T
 # Add Applications
 add_subdirectory(Applications/Game)
 add_subdirectory(Applications/IPC_Entity)
+add_subdirectory(Applications/MusicPlayer)
 add_subdirectory(Applications/BinaryTreeViewer)
 
 if(DATASTRUCTURES_BUILD_TESTS)
@@ -37,6 +39,19 @@ set_target_properties(GamePhysics PROPERTIES FOLDER "Engine")
 set_target_properties(GameUtilities PROPERTIES FOLDER "Engine")
 set_target_properties(EntityComponentSystem PROPERTIES FOLDER "Engine")
 
+set_target_properties(Game PROPERTIES FOLDER "Applications")
+set_target_properties(MusicPlayer PROPERTIES FOLDER "Applications")
+set_target_properties(BinaryTreeViewer PROPERTIES FOLDER "Applications")
+set_target_properties(IPC_Entities_Editor  PROPERTIES FOLDER "Applications")
+set_target_properties(IPC_Entities_Display PROPERTIES FOLDER "Applications")
+
 set_target_properties(glfw PROPERTIES FOLDER "Third Party")
 set_target_properties(raylib PROPERTIES FOLDER "Third Party")
 set_target_properties(glfw_objlib PROPERTIES FOLDER "Third Party")
+
+# Disable warnings for certain projects (third party targets)
+if(MSVC)
+	target_compile_options(raylib PRIVATE /w)
+else()
+	target_compile_options(raylib PRIVATE -w)
+endif()

@@ -133,7 +133,7 @@ namespace ECS
 			m_ComponentsMutex.unlock();
 
 			string typeName = string(type.name());
-			Utilities::MessageBus::eventBus()->Send("ComponentAdd" + string(type.name()), Utilities::DataStream().write(m_WorldID)->write(id));
+			Utilities::MessageBus::eventBus()->SendBuffered("ComponentAdd" + string(type.name()), Utilities::DataStream().write(m_WorldID)->write(id));
 
 			return component;
 		}

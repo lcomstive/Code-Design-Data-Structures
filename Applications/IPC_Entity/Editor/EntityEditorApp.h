@@ -1,6 +1,9 @@
 #pragma once
-#include <vector>
-#include "raylib.h"
+
+#pragma warning(push, 0) // Disable warnings in Visual Studio until pop
+#include <raylib.h>
+#pragma warning(pop)
+
 #include "WinInc.h"
 
 struct Entity {
@@ -23,15 +26,17 @@ public:
 	void Draw();
 
 protected:
-	int m_screenWidth;
-	int m_screenHeight;
+	static const unsigned int ENTITY_COUNT = 10;
 
-	// define a block of entities that should be shared
-	enum { ENTITY_COUNT = 10 };
-	Entity m_entities[ENTITY_COUNT];
+	int m_ScreenWidth;
+	int m_ScreenHeight;
+
+	// NOTE: m_Entities and m_SharedEntityCount are shared memory
+	Entity* m_Entities;					// Array of entities
+	unsigned int* m_SharedEntityCount;  // Count of entities in array
 
 #if _WIN32
-	HANDLE h;
+	HANDLE m_SharedMemHandle;
 #else
 
 #endif

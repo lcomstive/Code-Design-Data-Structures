@@ -1,3 +1,13 @@
+/*
+ *
+ * AIE Introduction to C++
+ * Data Structures
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright.
+ *
+ */
+
 #pragma once
 #include <memory>
 #include <utility>
@@ -184,6 +194,27 @@ namespace LCDS
 			Sorting::QuickSort(data, 0, Size() - 1, comparitor);
 
 			delete[] data;
+		}
+
+		DoubleLinkedListNode<T>* Find(std::function<bool(T&)> selector)
+		{
+			auto node = GetHead();
+
+			while (node)
+			{
+				if (selector(node->Value))
+					return node;
+				node = node->Next;
+			}
+
+			return nullptr;
+		}
+
+		// Removes all nodes from list
+		void Clear()
+		{
+			while(!IsEmpty())
+				RemoveAt(0);
 		}
 
 		// Creates a new dynamic array of references to each value.

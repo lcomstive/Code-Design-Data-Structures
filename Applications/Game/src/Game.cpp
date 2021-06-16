@@ -8,7 +8,9 @@
 
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
+#pragma warning(push, 0) // Disable warnings from raygui.h
 #include <raygui.h> // Immediate-mode GUI
+#pragma warning(pop)
 
 using namespace ECS;
 using namespace Utilities;

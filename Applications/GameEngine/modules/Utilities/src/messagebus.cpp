@@ -79,6 +79,14 @@ void MessageBus::Send(string event, DataStream data)
 	else
 		DispatchMessage(msg);
 }
+
+void MessageBus::SendBuffered(string event, DataStream data)
+{
+	Message msg(event, data);
+	lock_guard guard(m_MessageMutex);
+	m_Messages.push(msg);
+}
+
 void MessageBus::SendImmediate(string event, DataStream data) { DispatchMessage(Message(event, data)); }
 
 void MessageBus::bufferMessages(bool buffer) { m_BufferMessages = buffer; }

@@ -20,8 +20,16 @@ namespace Utilities
 		void RemoveReceiver(std::string event, unsigned int ID);
 		unsigned int AddReceiver(std::string event, std::function<void(DataStream)> callback);
 
+		// Dispatches message on bus
 		void Send(std::string event);
+
+		// Dispatches message on bus
 		void Send(std::string event, DataStream data);
+
+		// Dispatches message on bus, forced to be delayed until next event loop
+		void SendBuffered(std::string event, DataStream data);
+
+		// Dispatches message on bus, forced to be sent immediately
 		void SendImmediate(std::string event, DataStream data);
 
 		void ForceFlush();
