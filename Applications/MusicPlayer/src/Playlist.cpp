@@ -12,18 +12,18 @@ Playlist::Playlist(string filepath) { Load(filepath); }
 
 unsigned int Playlist::Size() const { return m_List.Size(); }
 
-void Playlist::Add(Song& song) { m_List.Add(song); }
-void Playlist::Insert(Song& song, unsigned int index) { m_List.Insert(song, index); }
+void Playlist::Add(Song song) { m_List.Add(song); }
+void Playlist::Insert(Song song, unsigned int index) { m_List.Insert(song, index); }
 
 void Playlist::Remove(unsigned int index) { m_List.RemoveAt(index); }
 void Playlist::Remove(string songName)
 {
-	transform(songName.begin(), songName.end(), songName.begin(), tolower);
+	transform(songName.begin(), songName.end(), songName.begin(), ::tolower);
 	auto node = m_List.Find([=](Song& s)
 		{
 			// Create temporary song name, and convert to lowercase for testing
 			string tempName = s.Name;
-			transform(tempName.begin(), tempName.end(), tempName.begin(), tolower);
+			transform(tempName.begin(), tempName.end(), tempName.begin(), ::tolower);
 			return songName.compare(tempName) == 0;
 		});
 	if (!node)
@@ -62,7 +62,8 @@ void Playlist::Load(string filepath)
 		return; // File could not be opened
 
 	input.read(temp, sizeof(unsigned int));
-	unsigned int count = (unsigned int)temp;
+	unsigned int count = 0;
+	memcpy(&count, temp, sizeof(unsigned int)); // Fill `count` with `temp`
 
 	for (int i = 0; i < count; i++)
 	{

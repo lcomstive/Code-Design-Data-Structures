@@ -16,8 +16,8 @@ namespace MusicPlayer
 		Playlist();
 		Playlist(std::string filepath);
 
-		void Add(Song& song);
-		void Insert(Song& song, unsigned int index);
+		void Add(Song song);
+		void Insert(Song song, unsigned int index);
 
 		void Remove(unsigned int index);
 		void Remove(std::string songName);

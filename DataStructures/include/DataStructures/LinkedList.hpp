@@ -149,10 +149,10 @@ namespace LCDS
 		// Inserts value at index
 		LinkedListNode<T>* Insert(const T& value, uint32_t index)
 		{
-			auto previousNode = FindPrevious(node);
 			auto currentNode = GetNode(index);
 			if (currentNode == nullptr)
 				return Add(value); // Index exceeds length of list, add to end
+			auto previousNode = FindPrevious(currentNode);
 
 			auto newNode = new LinkedListNode<T>(value, currentNode);
 
@@ -233,7 +233,7 @@ namespace LCDS
 	template<typename T>
 	std::ostream& operator <<(std::ostream& stream, const LinkedList<T>& list)
 	{
-		DoubleLinkedListNode<T>* node = list.GetHead();
+		LinkedListNode<T>* node = list.GetHead();
 		stream << node->Value;
 		while (node != nullptr)
 		{

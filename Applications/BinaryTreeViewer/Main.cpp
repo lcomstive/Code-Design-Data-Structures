@@ -1,6 +1,7 @@
 #include <string> // to_string
 #include <raylib.h>
 #include <iostream>
+#include <vector>
 #include <cmath> // std::lerp
 #include <DataStructures/BinaryTree.hpp>
 
@@ -149,7 +150,7 @@ const Color HighlightNodeColour = { 255, 200, 200, 255 };
 const int WidthBetweenNodes = 50;
 const int InitialVerticalSpacing = 200;
 
-unsigned char ByteLerp(unsigned char a, unsigned char b, float value) { return unsigned char(a + value * (b - a)); }
+unsigned char ByteLerp(unsigned char a, unsigned char b, float value) { return (unsigned char)(a + value * (b - a)); }
 
 Color ColorLerp(Color a, Color b, float value)
 {

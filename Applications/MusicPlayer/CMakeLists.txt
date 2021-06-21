@@ -17,6 +17,8 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Headers" FILES $
 
 target_link_libraries(${PROJECT_NAME} raylib)
 
+set(ASSET_OUTPUT_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets")
+
 if(MSVC)
 	set(ASSET_OUTPUT_DIR "$(OutDir)/assets")
 endif()

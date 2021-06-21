@@ -24,18 +24,22 @@ void DrawPlaylistUI(MusicPlayer::Player& player, Font& font)
 	auto song = playlist.GetFirst();
 	auto mousePos = GetMousePosition();
 
-	Vector2 resolution = { GetScreenWidth(), GetScreenHeight() };
+	Vector2 resolution = { (float)GetScreenWidth(), (float)GetScreenHeight() };
 
 	static int playlistScrollValue = 0;
 	playlistScrollValue = GuiScrollBar({ resolution.x - 30, 20, 10, resolution.y - 130 }, playlistScrollValue, 0, 100);
 
-	BeginScissorMode(20, 20, resolution.x - 40, resolution.y - 150);
+	auto dpi = GetWindowScaleDPI();
+	if(dpi.x == 1 && dpi.y == 1)
+		dpi = { 0, 0 }; // No need for shifting by resolution if dpi is { 1, 1 }
+	BeginScissorMode(20 * dpi.x, -(resolution.y / 2) * dpi.y + 20, (resolution.x - 60) * dpi.x, (resolution.y - 150) * dpi.y);
+
 	int songIndex = 0;
 	while (song)
 	{
 		bool currentSong = song == player.GetPlayingSong();
 		float yValue = 20 - 20.0f * playlistScrollValue + 65 * songIndex;
-	
+
 		// Dummy button for highlight when hovering
 		Rectangle backgroundSize = { 20, yValue, resolution.x - 50, 65 };
 		bool mouseHover = mousePos.x > backgroundSize.x && mousePos.x < backgroundSize.x + backgroundSize.width &&
@@ -66,7 +70,7 @@ void DrawGUI(MusicPlayer::Player& player, Font& font)
 {
 	auto currentSong = player.GetPlayingSong();
 	auto playlistCount = player.GetPlaylist().Size();
-	Vector2 resolution = { GetScreenWidth(), GetScreenHeight() };
+	Vector2 resolution = { (float)GetScreenWidth(), (float)GetScreenHeight() };
 	Vector2 center = { resolution.x / 2, resolution.y / 2 };
 
 	// Song name
