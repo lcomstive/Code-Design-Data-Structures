@@ -11,8 +11,8 @@ namespace LCDS
 		struct HashBucket
 		{
 			T* Values;
-			unsigned int* Keys; // Hashes
 			bool* Available;
+			unsigned int* Keys; // Hashes
 			unsigned int Size;
 
 			bool expanded;
@@ -24,22 +24,25 @@ namespace LCDS
 				if (!Values)
 					return;
 
+				// Release memory
 				delete[] Keys;
 				delete[] Values;
 				delete[] Available;
 
-				Size = 0;
 				Keys = nullptr;
 				Values = nullptr;
 				Available = nullptr;
+
+				Size = 0;
 			}
 
 			void Expand()
 			{
 				unsigned int newSize = Size == 0 ? 10 : (Size * 2);
+
 				auto newValues = new T[newSize];
-				auto newKeys = new unsigned int[newSize];
 				auto newAvailable = new bool[newSize];
+				auto newKeys = new unsigned int[newSize];
 
 				if (Values)
 				{
@@ -47,8 +50,9 @@ namespace LCDS
 					memcpy(newKeys, Keys, sizeof(unsigned int) * Size);
 					memcpy(newAvailable, Available, sizeof(bool) * Size);
 
-					delete[] Keys;
+					// Release memory
 					delete[] Values;
+					delete[] Keys;
 					delete[] Available;
 				}
 
@@ -168,9 +172,12 @@ namespace LCDS
 			if (!m_Buckets)
 				return; // Already destroyed
 
+			for (int i = 0; i < m_BucketCount; i++)
+				delete m_Buckets[i];
+			delete[] m_Buckets;
+
 			m_ValueCount = 0;
 			m_BucketCount = 0;
-			delete[] m_Buckets;
 			m_Buckets = nullptr;
 		}
 

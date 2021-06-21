@@ -1,20 +1,25 @@
 #pragma once
 #include <raylib.h>
 #include <Playlist.hpp>
+#include <DataStructures/HashTable.hpp>
 
 using namespace LCDS; // Lewis Comstive's Data Structures
 
 namespace MusicPlayer
 {
-	enum class MusicState { Stopped, Paused, Playing };
+	enum class MusicState { Stopped, Loaded, Paused, Playing };
 
 	class Player
 	{
+		bool m_Muted;
+		float m_Volume;
 		MusicState m_State;
 		Playlist m_Playlist;
 		Music m_CurrentMusic; // Raylib music
+		std::unique_ptr<HashTable<std::string, Music>> m_MusicCache; // Cached raylib music
 		DoubleLinkedListNode<Song>* m_CurrentSong;
 
+		void Load(DoubleLinkedListNode<Song>* song);
 		void PlayCurrentSong();
 
 	public:
@@ -30,11 +35,20 @@ namespace MusicPlayer
 
 		void Play();
 		void Play(unsigned int index);
+		void Load(unsigned int index = 0);
 
 		void Next();
 		void Previous();
 
+		void Seek(int position);
+
 		bool IsPlaying();
+
+		void SetVolume(float volume);
+		float GetVolume();
+		bool GetMuted();
+		void Mute(bool mute = true);
+		void ToggleMute();
 
 		DoubleLinkedListNode<Song>* GetPlayingSong();
 

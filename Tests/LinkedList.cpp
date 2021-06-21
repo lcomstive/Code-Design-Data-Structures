@@ -67,4 +67,24 @@ TEST_CASE("Linked list can be created from int array", "[double-linked-list]")
 		for(int i = 0; i < TestArraySize; i++)
 			REQUIRE(linkedList.GetNode(i)->Value == TestArraySorted[i]);
 	}
+
+	SECTION("Insertion sort")
+	{
+		if (linkedList.Size() == 0)
+			return;
+
+		LinkedListNode<int>* currentNode = nullptr;
+		LinkedListNode<int>* index = nullptr;
+		int temp;
+
+		for (currentNode = linkedList.GetHead(); currentNode->Next != nullptr; currentNode = currentNode->Next) {
+			for (index = currentNode->Next; index != nullptr; index = index->Next) {
+				if (currentNode->Value > index->Value) {
+					temp = currentNode->Value;
+					currentNode->Value = index->Value;
+					index->Value = temp;
+				}
+			}
+		}
+	}
 }

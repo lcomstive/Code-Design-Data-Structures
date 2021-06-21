@@ -1,17 +1,49 @@
 #include <MusicPlayer.hpp>
-#include <raylib.h>
 
 using namespace std;
 using namespace LCDS;
 using namespace MusicPlayer;
 
-Player::Player() : m_State(MusicState::Stopped), m_Playlist(), m_CurrentSong(nullptr) { }
+unsigned int FilepathHash(string& filepath)
+{
+	const unsigned int RandomNumbers[] =
+	{
+		601,
+		217,
+		679,
+		662,
+		845,
+		711,
+		453,
+		358,
+		909,
+		423,
+	};
+	const unsigned int RandomNumberCount = 10;
 
-Player::~Player() { Stop(); }
+	unsigned int hash = RandomNumbers[RandomNumberCount / 2];
+	for (int i = 0; i < filepath.size(); i++)
+		hash += filepath[i] << hash ^ RandomNumbers[(i | hash) % RandomNumberCount];
+
+		return hash;
+}
+
+Player::Player() : m_State(MusicState::Stopped), m_CurrentMusic(), m_Playlist(), m_CurrentSong(nullptr)
+{
+	SetVolume(1.0f);
+
+	// If not a pointer, causes access violation upon deletion of values array (in this case, Raylib's Music)
+	m_MusicCache = make_unique<HashTable<string, Music>>(25, FilepathHash);
+}
+
+Player::~Player()
+{
+	Stop();
+}
 
 void Player::Update()
 {
-	if(m_State == MusicState::Playing)
+	if (m_State == MusicState::Playing)
 		UpdateMusicStream(m_CurrentMusic);
 }
 
@@ -29,30 +61,47 @@ void Player::Stop()
 void Player::PlayCurrentSong()
 {
 	m_State = MusicState::Playing;
-
-	m_CurrentMusic = LoadMusicStream(m_CurrentSong->Value.Filepath.c_str());
 	PlayMusicStream(m_CurrentMusic);
 }
 
 void Player::Play()
 {
-	if(m_State == MusicState::Stopped)
+	if (m_State == MusicState::Stopped)
 		return Play(0);
-	ResumeMusicStream(m_CurrentMusic);
+	Resume();
 }
 
 void Player::Play(unsigned int index)
 {
+	Load(index);
+	PlayCurrentSong();
+}
+
+void Player::Load(unsigned int index)
+{
 	if (m_State != MusicState::Stopped)
 		StopMusicStream(m_CurrentMusic);
+	Load(m_Playlist.Get(index));
+}
 
-	m_CurrentSong = m_Playlist.Get(index);
-	if (m_CurrentSong->Value.Filepath.empty())
+void Player::Load(DoubleLinkedListNode<Song>* song)
+{
+	if (!song)
+		return;
+	if (song->Value.Filepath.empty())
 	{
-		cerr << "Tried to play song '" << m_CurrentSong->Value.Name << "' but no filepath given" << endl;
+		cerr << "Tried to load song '" << song->Value.Name << "' but no filepath given" << endl;
 		return;
 	}
-	PlayCurrentSong();
+
+	m_CurrentSong = song;
+
+	string& filepath = song->Value.Filepath;
+	if (!m_MusicCache->Contains(filepath))
+		m_MusicCache->Add(filepath, LoadMusicStream(filepath.c_str()));
+
+	m_CurrentMusic = m_MusicCache->Find(filepath);
+	m_State = MusicState::Loaded;
 }
 
 void Player::Pause()
@@ -65,34 +114,59 @@ void Player::Pause()
 
 void Player::Resume()
 {
-	if (m_State != MusicState::Paused)
-		return; // Can only resume what is paused
+	switch (m_State)
+	{
+	case MusicState::Paused:
+		ResumeMusicStream(m_CurrentMusic);
+		break;
+	case MusicState::Loaded:
+		PlayMusicStream(m_CurrentMusic);
+		break;
+	default:
+		return;
+	}
+
 	m_State = MusicState::Playing;
-	ResumeMusicStream(m_CurrentMusic);
 }
 
 void Player::TogglePause()
 {
-	if (m_State == MusicState::Paused)
-		Resume();
-	else if (m_State == MusicState::Playing)
+	if (m_State == MusicState::Playing)
 		Pause();
+	else
+		Resume();
 }
 
 void Player::Next()
 {
-	if (!m_CurrentSong->Next)
+	if (!m_CurrentSong || !m_CurrentSong->Next)
 		return; // No song in queue/playlist
-	m_CurrentSong = m_CurrentSong->Next;
+	Load(m_CurrentSong->Next);
+	StopMusicStream(m_CurrentMusic); // Reset play position
 	PlayCurrentSong();
 }
 
 void Player::Previous()
 {
-	if (!m_CurrentSong->Previous)
+	if (!m_CurrentSong || !m_CurrentSong->Previous)
 		return; // No previous song
-	m_CurrentSong = m_CurrentSong->Previous;
+	Load(m_CurrentSong->Previous);
+	StopMusicStream(m_CurrentMusic); // Reset play position
 	PlayCurrentSong();
+}
+
+void Player::Seek(int position)
+{
+	/// rAudioBuffer is an "incomplete type", although defined in raudio.c
+	/// Would have thought building against raylib.lib would have fixed?
+	/// Can't find another way to seek Raylib raudio streams?
+	// struct rAudioBuffer* buffer = m_CurrentMusic.stream.buffer;
+	/*
+	int maxSamples = buffer->sampleCount;
+	if (position > buffer->sampleCount)
+		position = buffer->sampleCount - 1; // Play last frame
+	m_CurrentMusic.stream.buffer->frameCursorPos = position;
+	*/
 }
 
 bool Player::IsPlaying() { return m_State == MusicState::Playing; }
@@ -112,7 +186,28 @@ void Player::LoadPlaylist(std::string filepath)
 
 DoubleLinkedListNode<Song>* Player::GetPlayingSong()
 {
-	if (m_State == MusicState::Stopped)
+	if (m_State == MusicState::Stopped || m_Playlist.Size() == 0)
 		return nullptr;
 	return m_CurrentSong;
 }
+
+void Player::SetVolume(float value)
+{
+	m_Volume = value;
+	if (m_Volume < 0.001f) m_Volume = 0.0f;
+	if (m_Volume > 1.0f) m_Volume = 1.0f;
+	SetMusicVolume(m_CurrentMusic, m_Volume);
+	m_Muted = value > 0.001f;
+}
+
+float Player::GetVolume() { return m_Volume; }
+
+void Player::Mute(bool mute)
+{
+	SetMusicVolume(m_CurrentMusic, mute ? 0.0f : m_Volume);
+	m_Muted = mute;
+}
+
+void Player::ToggleMute() { Mute(!m_Muted); }
+
+bool Player::GetMuted() { return m_Muted; }
