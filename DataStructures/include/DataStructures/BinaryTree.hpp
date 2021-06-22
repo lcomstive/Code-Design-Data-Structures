@@ -1,7 +1,17 @@
+/*
+ *
+ * AIE Code Design & Data Structures
+ * Data Structures
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright information.
+ *
+ */
+
 #pragma once
 #include <functional>
 
-namespace LCDS
+namespace LCDS // Lewis Comstive's Data Structures
 {
 	// --- BINARY TREE NODE --- //
 	template<typename T>
@@ -19,18 +29,24 @@ namespace LCDS
 	};
 
 	// --- BINARY TREE --- //
+
+	// Tree structure with each leaf node having a maximum of two child nodes
 	template<typename T>
 	class BinaryTree
 	{
-		unsigned int m_NodeCount;
-		BinaryTreeNode<T>* m_Root;
+		unsigned int m_NodeCount;  // Keep track of created nodes
+		BinaryTreeNode<T>* m_Root; // Always keep reference to first created node, all other nodes can be reached from here
 
+		// When no function is given for comparing values for sorting, this one is used
 		std::function<int(T& a, T& b)> m_ComparisonFunc = [](T& a, T& b) { return a - b; };
 
 	public:
 		// --- CONSTRUCTORS --- //
+
+		// Default constructor
 		BinaryTree() : m_NodeCount(0), m_Root(nullptr) { }
 
+		// Initialise by array
 		BinaryTree(T values[], unsigned int count) : BinaryTree<T>()
 		{
 			for (unsigned int i = 0; i < count; i++)
@@ -39,13 +55,15 @@ namespace LCDS
 
 		~BinaryTree() { Clear(); }
 
+		// --- GETTERS --- //
+
+		bool IsEmpty() const { return Size() == 0; }
 		unsigned int Size() const { return m_NodeCount; }
 
-		// --- GETTERS --- //
-		bool IsEmpty() const { return m_Root == nullptr; }
+		// The top-most node
 		BinaryTreeNode<T>* GetRoot() const { return m_Root; }
 
-		// Returns the deepest, left-most node of the input node
+		// The deepest, left-most node of the input node (minimum value)
 		BinaryTreeNode<T>* GetMinValueNode(BinaryTreeNode<T>* node)
 		{
 			while (node && node->Left)
@@ -53,7 +71,7 @@ namespace LCDS
 			return node;
 		}
 
-		// Returns the deepest, right-most node of the input node
+		// The deepest, right-most node of the input node (maximum value)
 		BinaryTreeNode<T>* GetMaxValueNode(BinaryTreeNode<T>* node)
 		{
 			while (node && node->Right)
@@ -61,7 +79,7 @@ namespace LCDS
 			return node;
 		}
 
-		// Returns how deep the tree goes from this node
+		// How deep the tree goes from certain node
 		int GetDepth(BinaryTreeNode<T>* node)
 		{
 			if (!node)
@@ -77,7 +95,7 @@ namespace LCDS
 		// --- OPERATIONS --- //
 
 #pragma region Insert
-		// Insert the value under the input node.
+		// Insert the value underneath the input node.
 		// Returns the input node (for recursive insertion), or a new node if node is null
 		BinaryTreeNode<T>* Insert(BinaryTreeNode<T>* node, T& value)
 		{
@@ -103,7 +121,7 @@ namespace LCDS
 		void Insert(T value)
 		{
 			if (!m_Root)
-			{
+			{   // No values in tree, create one
 				m_NodeCount++;
 				m_Root = new BinaryTreeNode<T>(value);
 			}
@@ -158,12 +176,12 @@ namespace LCDS
 			return Remove(Search(current, value));
 		}
 
-		// Searches for value in entire tree, then removes it
+		// Searches for value in entire tree and removes it
 		void Remove(T value) { m_Root = Remove(m_Root, value); }
 #pragma endregion
 
 #pragma region Search
-		// Search under input node, using selector to find value
+		// Recursively search under input node, using selector to find value
 		BinaryTreeNode<T>* Search(BinaryTreeNode<T>* node, std::function<bool(T&)> selector)
 		{
 			if (!node)
@@ -179,7 +197,7 @@ namespace LCDS
 			return temp;
 		}
 
-		// Searches through input node for value
+		// Recursively searches through input node for value
 		BinaryTreeNode<T>* Search(BinaryTreeNode<T>* node, T& value)
 		{
 			if (!node) return nullptr;
@@ -193,13 +211,14 @@ namespace LCDS
 				Search(node->Right, value);
 		}
 
-		// Searches through entire tree for value, using selector
+		// Recursively searches through entire tree for value, using selector
 		BinaryTreeNode<T>* Search(std::function<bool(T&)> selector) { return Search(m_Root, selector); }
 
-		// Searches through entire tree for value
+		// Recursively searches through entire tree for value
 		BinaryTreeNode<T>* Search(T value) { return Search(m_Root, value); }
 
-		// Searches for parent of value node, using selector
+		// Recursively searches for parent of value node, using selector
+		// TODO: Test parent search
 		BinaryTreeNode<T>* SearchForParent(BinaryTreeNode<T>* node, std::function<bool(T&)> selector)
 		{
 			if (!node)
@@ -213,9 +232,10 @@ namespace LCDS
 				temp = SearchForParent(node->Right, selector);
 			return temp;
 		}
+		// Recursively searches for parent of value, using selector
 		BinaryTreeNode<T>* SearchForParent(std::function<bool(T&)> selector) { return SearchForParent(m_Root, selector); }
 
-		// Search for parent of value node
+		// Recursively searches for parent of value
 		BinaryTreeNode<T>* SearchForParent(BinaryTreeNode<T>* node, T& value)
 		{
 			if (!node)
@@ -230,11 +250,14 @@ namespace LCDS
 				SearchForParent(node->Right, value);
 		}
 
+		// Recursively searches for parent of value, relative to node
 		BinaryTreeNode<T>* SearchForParent(BinaryTreeNode<T>* node, BinaryTreeNode<T>* value) { return SearchForParent(node, value->Value); }
 #pragma endregion
 
+		// Checks if value exists in tree
 		bool Contains(T value) { return Search(m_Root, value) != nullptr; }
 
+		// Removes all nodes, including root
 		void Clear()
 		{
 			while (m_Root)

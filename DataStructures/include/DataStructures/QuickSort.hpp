@@ -1,7 +1,16 @@
+/*
+ *
+ * AIE Code Design & Data Structures
+ * Data Structures
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright information.
+ *
+ */
 #pragma once
 #include <functional>
 
-namespace LCDS
+namespace LCDS // Lewis Comstive's Data Structures
 {
 	namespace Sorting
 	{

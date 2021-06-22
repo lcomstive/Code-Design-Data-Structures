@@ -1,3 +1,12 @@
+/*
+ *
+ * AIE Code Design & Data Structures
+ * Data Structures
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright information.
+ *
+ */
 #pragma once
 #include <memory>
 #include <utility>
@@ -6,7 +15,7 @@
 
 #include "QuickSort.hpp"
 
-namespace LCDS
+namespace LCDS // Lewis Comstive's Data Structures
 {
 	// --- LINKED LIST NODE --- //
 	template<typename T>
@@ -25,14 +34,17 @@ namespace LCDS
 	template<typename T>
 	class LinkedList
 	{
-		unsigned int m_NodeCount;
-		LinkedListNode<T>* m_Head;
-		LinkedListNode<T>* m_Tail;
+		unsigned int m_NodeCount;  // Keep track of nodes created & deleted
+		LinkedListNode<T>* m_Head; // Always points to first node
+		LinkedListNode<T>* m_Tail; // Always points to last node
 
+		// When no function is given for comparing values for sorting, this one is used
 		static bool DefaultComparitor(T& a, T& b) { return a >= b; }
 
 	public:
 		// --- CONSTRUCTORS --- //
+
+		// Default
 		LinkedList() : m_NodeCount(0), m_Head(nullptr), m_Tail(nullptr) { }
 
 		// Copy array into linked list
@@ -64,17 +76,27 @@ namespace LCDS
 		}
 
 		// --- GETTERS --- //
+
 		bool IsEmpty() const { return m_Head == nullptr; }
+
+		// Get first node
 		LinkedListNode<T>* GetHead() const { return m_Head; }
+
+		// Get last node
 		LinkedListNode<T>* GetTail() const { return m_Tail; }
-		LinkedListNode<T>* GetNode(const uint32_t index)
+
+		// Get node at index location
+		LinkedListNode<T>* GetNode(const unsigned int index)
 		{
+			if(index >= Size())
+				return nullptr; // Out of bounds
+
 			unsigned int traversed = 0;
 			auto currentNode = GetHead();
 			while (traversed < index)
 			{
 				if (currentNode->Next == nullptr)
-					return nullptr;
+					return nullptr; // End of list, or malformed?
 
 				currentNode = currentNode->Next;
 				traversed++;
@@ -86,11 +108,11 @@ namespace LCDS
 
 		// --- NODE OPERATIONS --- //
 
-		// Appends value at end of list
+		// Append value at end of list
 		LinkedListNode<T>* Add(const T& value)
 		{
 			if (m_Head == nullptr)
-			{
+			{	// No other nodes in list
 				m_Head = new LinkedListNode<T>(value);
 				m_Tail = m_Head;
 				m_NodeCount++;
@@ -118,6 +140,7 @@ namespace LCDS
 			return currentNode;
 		}
 
+		// Get location of node in list
 		unsigned int GetIndex(LinkedListNode<T>* node)
 		{
 			unsigned int traversed = 0;
@@ -147,7 +170,7 @@ namespace LCDS
 		}
 
 		// Inserts value at index
-		LinkedListNode<T>* Insert(const T& value, uint32_t index)
+		LinkedListNode<T>* Insert(const T& value, unsigned int index)
 		{
 			auto currentNode = GetNode(index);
 			if (currentNode == nullptr)
@@ -201,6 +224,8 @@ namespace LCDS
 			return true; // Successfully removed node
 		}
 
+		// Sorts the list
+		// 	(optional function for comparison type, which should return true if elements are to be swapped)
 		void Sort(std::function<bool(T&, T&)> comparitor = nullptr)
 		{
 			T** data = Data();
@@ -209,8 +234,8 @@ namespace LCDS
 			delete[] data;
 		}
 
-		// Creates a new dynamic array of references to each value.
-		// Calling function needs to delete the return value!
+		// Creates a new dynamic array consisting of references to each value.
+		// RETURNED ARRAY SHOULD BE DELETED BY ACQUIRER!
 		T** Data()
 		{
 			T** values = new T*[Size()];
@@ -230,6 +255,7 @@ namespace LCDS
 		LinkedListNode<T>* operator [](unsigned int index) const { return GetNode(index); }
 	};
 
+	// Stream operator, for when printing entire list to console
 	template<typename T>
 	std::ostream& operator <<(std::ostream& stream, const LinkedList<T>& list)
 	{

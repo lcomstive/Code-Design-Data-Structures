@@ -33,7 +33,7 @@ void DrawPlaylistUI(MusicPlayer::Player& player, Font& font)
 	BeginScissorMode((int)(20 * dpi.x), (int)(resolution.y * -(dpi.y - 1.0f) + 20), (int)((resolution.x - 60) * dpi.x), (int)((resolution.y - 150.0f) * dpi.y));
 
 	int songIndex = 0;
-	int playlistCount = playlist.Size();
+	bool songDeleted = false;
 	while (song)
 	{
 		bool currentSong = song == player.GetPlayingSong();
@@ -52,10 +52,12 @@ void DrawPlaylistUI(MusicPlayer::Player& player, Font& font)
 
 		if (GuiButton({ backgroundSize.x + backgroundSize.width - 50, backgroundSize.y + 15, 30, 30 }, GuiIconText(RICON_PLAYER_PLAY, "")))
 			player.Play(songIndex);
-		if (GuiButton({ backgroundSize.x + backgroundSize.width - 90, backgroundSize.y + 15, 30, 30 }, GuiIconText(RICON_FILE_DELETE, "")))
+		if (GuiButton({ backgroundSize.x + backgroundSize.width - 90, backgroundSize.y + 15, 30, 30 }, GuiIconText(RICON_FILE_DELETE, ""))
+				&& !songDeleted)
 		{
 			song = song->Next;
 			playlist.Remove(songIndex);
+			songDeleted = true;
 			continue;
 		}
 

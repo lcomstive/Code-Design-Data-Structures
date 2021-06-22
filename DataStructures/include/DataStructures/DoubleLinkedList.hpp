@@ -1,10 +1,10 @@
 /*
  *
- * AIE Introduction to C++
+ * AIE Code Design & Data Structures
  * Data Structures
  * Lewis Comstive (s210314)
  *
- * See the LICENSE file in the root directory of project for copyright.
+ * See the LICENSE file in the root directory of project for copyright information.
  *
  */
 
@@ -16,7 +16,7 @@
 
 #include "QuickSort.hpp"
 
-namespace LCDS
+namespace LCDS // Lewis Comstive's Data Structures
 {
 	// --- DOUBLE LINKED LIST NODE --- //
 	template<typename T>
@@ -37,15 +37,17 @@ namespace LCDS
 	template<typename T>
 	class DoubleLinkedList
 	{
-		unsigned int m_NodeCount;
-		DoubleLinkedListNode<T>* m_Head;
-		DoubleLinkedListNode<T>* m_Tail;
+		unsigned int m_NodeCount;		 // Keep track of nodes created & deleted
+		DoubleLinkedListNode<T>* m_Head; // Always points to first node
+		DoubleLinkedListNode<T>* m_Tail; // Always points to last node
 
-		static bool DefaultComparitor(T& a, T& b) { return a >= b; }
+		// When no function is given for comparing values for sorting, this one is used
+		static bool DefaultComparitor(T& leftElement, T& rightElement) { return leftElement >= rightElement; }
 
 	public:
 		// --- CONSTRUCTORS --- //
 
+		// Default
 		DoubleLinkedList() : m_NodeCount(0), m_Head(nullptr), m_Tail(nullptr) { }
 
 		// Copy array into linked list
@@ -57,6 +59,7 @@ namespace LCDS
 		}
 
 		// Copy constructor
+		// TODO: Test this
 		DoubleLinkedList(const DoubleLinkedList<T>&& other)
 		{
 			auto currentNode = other.m_Head;
@@ -70,24 +73,32 @@ namespace LCDS
 		~DoubleLinkedList()
 		{
 			if(IsEmpty())
-				return;
-			
-			while (m_NodeCount > 0)
-				RemoveAt(0);
+				return; // No nodes to delete
+			Clear(); // Remove & delete all nodes
 		}
 
 		// --- GETTERS --- //
-		bool IsEmpty() const { return m_Head == nullptr; }
+
+		unsigned int Size() const { return m_NodeCount; }
+		bool IsEmpty() const { return Size() == 0; }
+
+		// Get first node
 		DoubleLinkedListNode<T>* GetHead() const { return m_Head; }
+		// Get last node
 		DoubleLinkedListNode<T>* GetTail() const { return m_Tail; }
-		DoubleLinkedListNode<T>* GetNode(const uint32_t index)
+
+		// Get node at index location
+		DoubleLinkedListNode<T>* GetNode(const unsigned int index)
 		{
+			if(index >= Size())
+				return nullptr; // Out of bounds
+
 			unsigned int traversed = 0;
 			auto currentNode = GetHead();
 			while (traversed < index)
 			{
 				if (currentNode->Next == nullptr)
-					return nullptr;
+					return nullptr; // End of list, or malformed?
 
 				currentNode = currentNode->Next;
 				traversed++;
@@ -95,17 +106,14 @@ namespace LCDS
 			return currentNode;
 		}
 
-		unsigned int Size() const { return m_NodeCount; }
-
 		// --- NODE OPERATIONS --- //
 
-		// Appends value at end of list
+		// Append value at end of list
 		DoubleLinkedListNode<T>* Add(const T& value)
 		{
 			if (m_Head == nullptr)
-			{
-				m_Head = new DoubleLinkedListNode<T>(value);
-				m_Tail = m_Head;
+			{	// No other nodes in list
+				m_Head = m_Tail = new DoubleLinkedListNode<T>(value);
 				m_NodeCount++;
 				return m_Head;
 			}
@@ -121,13 +129,10 @@ namespace LCDS
 		DoubleLinkedListNode<T>* Prepend(const T& value)
 		{
 			if (m_Head == nullptr)
-			{
-				m_Head = new DoubleLinkedListNode<T>(value);
-				m_Tail = m_Head;
-				return m_Head;
-			}
+				return Add(value); // Sets head, tail and increments count
 
-			auto node = new DoubleLinkedListNode<T>(value, nullptr, m_Head);
+			// Create node, set as head
+			auto node = new DoubleLinkedListNode<T>(value, /* Previous: */ nullptr, /* Next: */ m_Head);
 			m_Head->Previous = node;
 			m_Head = node;
 			m_NodeCount++;
@@ -135,72 +140,77 @@ namespace LCDS
 		}
 
 		// Inserts value at index
-		DoubleLinkedListNode<T>* Insert(const T& value, uint32_t index)
+		DoubleLinkedListNode<T>* Insert(const T& value, unsigned int index)
 		{
 			auto currentNode = GetNode(index);
 			if (currentNode == nullptr)
 				return Add(value); // Index exceeds length of list, add to end
 
-			auto newNode = new DoubleLinkedListNode<T>(value, currentNode->Previous, currentNode);
+			auto newNode = new DoubleLinkedListNode<T>(value, /* Previous: */ currentNode->Previous, /* Next: */ currentNode);
+
+			// Inform surrounding nodes of insertion
 			if(currentNode->Previous)
 				currentNode->Previous->Next = newNode;
 			currentNode->Previous = newNode;
 
-			if (index == 0)
+			if (index == 0) // Insertion was at start of list
 				m_Head = newNode;
 
 			m_NodeCount++;
 			return newNode;
 		}
 
-		bool Move(uint32_t index, int amount)
+		// Shifts node at index position by input amount
+		bool Move(unsigned int index, int amount)
 		{
 			if (amount == 0)
-				return true;
-			bool forward = amount < 0;
-			if (amount < 0)
-				amount = -amount;
-			bool success = true;
-			while (amount > 0 && success)
-			{
-				success = Shift(index, forward);
-				amount--;
+				return true; // No movement amount
 
-				index += forward ? -1 : 1;
+			// 'Right' in this case is towards end of the list
+			bool shouldShiftRight = amount < 0;
+			if (amount < 0)
+				amount = -amount; // Ensure amount is made positive for decrementing in below while loop
+
+			bool success = true; // Keep track of success
+			while (amount > 0 && success) // Stop if error occurs or desired number of shifts achieved
+			{
+				success = Shift(index, shouldShiftRight); // Modify list
+
+				amount--;
+				index += shouldShiftRight ? -1 : 1; // Move index same direction as element
 			}
 			return success;
 		}
 
-		bool Shift(uint32_t index, bool forward = true)
+		// Shifts an element at index
+		bool Shift(unsigned int index, bool shouldShiftRight = true)
 		{
-			uint32_t newIndex = index + (forward ? -1 : 1);
-			auto a = GetNode(index > newIndex ? newIndex : index);
-			auto b = GetNode(index > newIndex ? index : newIndex);
-			if (!a || !b)
+			unsigned int newIndex = index + (shouldShiftRight ? -1 : 1);
+			auto leftElement  = GetNode(index > newIndex ? newIndex : index); // Get right-most node
+			auto rightElement = GetNode(index > newIndex ? index : newIndex); // Get left-most node
+
+			if (!leftElement || !rightElement)
 				return false; // Index out of range
 
-			// Ensure heads and tails are correct
-			if (a == m_Head)
-				m_Head = b;
-			else if (b == m_Head)
-				m_Head = a;
-			if(a == m_Tail)
-				m_Tail = b;
-			else if (b == m_Tail)
-				m_Tail = a;
+			// Ensure heads and tails are corrected
+			if (leftElement == m_Head)
+				m_Head = rightElement;
+			if (rightElement == m_Tail)
+				m_Tail = leftElement;
 
-			if (a->Previous)
-				a->Previous->Next = b;
-			if (b->Next)
-				b->Next->Previous = b->Previous;
+			// Inform previous and next nodes of the swap
+			if (leftElement->Previous)
+				leftElement->Previous->Next = rightElement;
+			if (rightElement->Next)
+				rightElement->Next->Previous = rightElement->Previous;
 
 			// Le olde swapsies
-			a->Next = b->Next;
-			b->Previous = a->Previous;
-			a->Previous = b;
-			b->Next = a;
+			leftElement->Next = rightElement->Next;
+			rightElement->Previous = leftElement->Previous;
+			leftElement->Previous = rightElement;
+			rightElement->Next = leftElement;
 
-			return true;
+			return true; // Success
 		}
 
 		// Deletes node from list
@@ -209,15 +219,26 @@ namespace LCDS
 			auto node = GetNode(index);
 			if (node == nullptr)
 				return false; // Failed to find node
-			if (node->Previous) // Set previous node's `Next` to this node's `Next`
+
+			return Remove(node);
+		}
+
+		// Deletes node from list
+		bool Remove(DoubleLinkedListNode<T>* node)
+		{
+			if (!node) // Invalid input
+				return false;
+
+			// Link surrounding nodes
+			if (node->Previous)
 				node->Previous->Next = node->Next;
 			if(node->Next)
 				node->Next->Previous = node->Previous;
 
-			// Check for start or end of list
-			if(index == 0)
+			// Check for removing node that is start or end of list
+			if(node == m_Head)
 				m_Head = node->Next;
-			if(index == m_NodeCount - 1)
+			if(node == m_Tail)
 				m_Tail = node->Previous;
 
 			delete node;
@@ -226,23 +247,8 @@ namespace LCDS
 			return true; // Successfully removed node
 		}
 
-		// Deletes node from list
-		// Deletes node from list
-		bool Remove(DoubleLinkedListNode<T>* node)
-		{
-			if (!node)
-				return false;
-			if (node->Previous)
-				node->Previous->Next = node->Next;
-			if (node->Next)
-				node->Next->Previous = node->Previous;
-
-			delete node;
-			m_NodeCount--;
-
-			return true; // Successfully removed node
-		}
-
+		// Sorts the list
+		// 	(optional function for comparison type, which should return true if elements are to be swapped)
 		void Sort(std::function<bool(T&, T&)> comparitor = nullptr)
 		{
 			T** data = Data();
@@ -251,25 +257,27 @@ namespace LCDS
 			delete[] data;
 		}
 
+		// Finds the first item using a function to determine if value is sought after.
 		DoubleLinkedListNode<T>* Find(std::function<bool(T&)> selector)
 		{
+			// Loop through entire list, testing selector on each
 			auto node = GetHead();
-
 			while (node)
 			{
 				if (selector(node->Value))
 					return node;
 				node = node->Next;
 			}
-
-			return nullptr;
+			return nullptr; // None found
 		}
-		
+
+		// Finds the location of the first value that the selector function returns true
 		int IndexOf(std::function<bool(T&)> selector)
 		{
 			auto node = GetHead();
 			int index = 0;
 
+			// Loop through entire list, testing selector on each
 			while (node)
 			{
 				if (selector(node->Value))
@@ -288,8 +296,8 @@ namespace LCDS
 				RemoveAt(0);
 		}
 
-		// Creates a new dynamic array of references to each value.
-		// Calling function needs to delete the return value!
+		// Creates a new dynamic array consisting of references to each value.
+		// RETURNED ARRAY SHOULD BE DELETED BY ACQUIRER!
 		T** Data()
 		{
 			T** values = new T*[Size()];
@@ -309,6 +317,7 @@ namespace LCDS
 		DoubleLinkedListNode<T>* operator [](unsigned int index) const { return GetNode(index); }
 	};
 
+	// Stream operator, for when printing entire list to console
 	template<typename T>
 	std::ostream& operator <<(std::ostream& stream, const DoubleLinkedList<T>& list)
 	{
