@@ -4,6 +4,9 @@
 using namespace std;
 
 EntityDisplayApp::EntityDisplayApp(int screenWidth, int screenHeight) :
+#if _WIN32
+	m_SharedMemHandle(NULL),
+#endif
 	m_Entities(nullptr),
 	m_EntityCount(nullptr),
 	m_screenWidth(screenWidth),

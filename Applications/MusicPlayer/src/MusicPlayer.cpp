@@ -161,6 +161,7 @@ void Player::Seek(int position)
 	/// Would have thought building against raylib.lib would have fixed?
 	/// Can't find another way to seek Raylib raudio streams?
 	// struct rAudioBuffer* buffer = m_CurrentMusic.stream.buffer;
+
 	/*
 	int maxSamples = buffer->sampleCount;
 	if (position > buffer->sampleCount)

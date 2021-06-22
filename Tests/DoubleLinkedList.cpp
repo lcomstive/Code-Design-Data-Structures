@@ -64,7 +64,55 @@ TEST_CASE("Double linked list can be created from int array", "[double-linked-li
 	{
 		linkedList.Sort();
 
-		for(int i = 0; i < TestArraySize; i++)
+		for (int i = 0; i < TestArraySize; i++)
 			REQUIRE(linkedList.GetNode(i)->Value == TestArraySorted[i]);
+	}
+
+	SECTION("Moving node up")
+	{
+		int beforeIndex = 2; // 8
+		int afterIndex = 1;
+
+		auto node = linkedList.GetNode(beforeIndex);
+		linkedList.Shift(beforeIndex);
+
+		int foundIndex = linkedList.IndexOf([=](int& x) { return x == node->Value; });
+		REQUIRE(foundIndex == afterIndex);
+	}
+	
+	SECTION("Moving node down")
+	{
+		int beforeIndex = 2; // 8
+		int afterIndex = 3;
+
+		auto node = linkedList.GetNode(beforeIndex);
+		linkedList.Shift(beforeIndex, false);
+
+		int foundIndex = linkedList.IndexOf([=](int& x) { return x == node->Value; });
+		REQUIRE(foundIndex == afterIndex);
+	}
+	
+	SECTION("Moving node up two")
+	{
+		int beforeIndex = 4; // 15
+		int afterIndex = 2;  // 12
+
+		auto node = linkedList.GetNode(beforeIndex);
+		linkedList.Move(beforeIndex, -2);
+
+		int foundIndex = linkedList.IndexOf([=](int& x) { return x == node->Value; });
+		REQUIRE(foundIndex == afterIndex);
+	}
+
+	SECTION("Moving node down three")
+	{
+		int beforeIndex = 1; // 12
+		int afterIndex = 4;
+
+		auto node = linkedList.GetNode(beforeIndex);
+		linkedList.Move(beforeIndex, afterIndex - beforeIndex);
+
+		int foundIndex = linkedList.IndexOf([=](int& x) { return x == node->Value; });
+		REQUIRE(foundIndex == afterIndex);
 	}
 }

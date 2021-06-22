@@ -72,7 +72,7 @@ namespace LCDS
 			if(IsEmpty())
 				return;
 			
-			while(m_NodeCount > 0)
+			while (m_NodeCount > 0)
 				RemoveAt(0);
 		}
 
@@ -142,11 +142,65 @@ namespace LCDS
 				return Add(value); // Index exceeds length of list, add to end
 
 			auto newNode = new DoubleLinkedListNode<T>(value, currentNode->Previous, currentNode);
-			currentNode->Previous->Next = newNode;
+			if(currentNode->Previous)
+				currentNode->Previous->Next = newNode;
 			currentNode->Previous = newNode;
+
+			if (index == 0)
+				m_Head = newNode;
 
 			m_NodeCount++;
 			return newNode;
+		}
+
+		bool Move(uint32_t index, int amount)
+		{
+			if (amount == 0)
+				return true;
+			bool forward = amount < 0;
+			if (amount < 0)
+				amount = -amount;
+			bool success = true;
+			while (amount > 0 && success)
+			{
+				success = Shift(index, forward);
+				amount--;
+
+				index += forward ? -1 : 1;
+			}
+			return success;
+		}
+
+		bool Shift(uint32_t index, bool forward = true)
+		{
+			uint32_t newIndex = index + (forward ? -1 : 1);
+			auto a = GetNode(index > newIndex ? newIndex : index);
+			auto b = GetNode(index > newIndex ? index : newIndex);
+			if (!a || !b)
+				return false; // Index out of range
+
+			// Ensure heads and tails are correct
+			if (a == m_Head)
+				m_Head = b;
+			else if (b == m_Head)
+				m_Head = a;
+			if(a == m_Tail)
+				m_Tail = b;
+			else if (b == m_Tail)
+				m_Tail = a;
+
+			if (a->Previous)
+				a->Previous->Next = b;
+			if (b->Next)
+				b->Next->Previous = b->Previous;
+
+			// Le olde swapsies
+			a->Next = b->Next;
+			b->Previous = a->Previous;
+			a->Previous = b;
+			b->Next = a;
+
+			return true;
 		}
 
 		// Deletes node from list
@@ -173,18 +227,19 @@ namespace LCDS
 		}
 
 		// Deletes node from list
+		// Deletes node from list
 		bool Remove(DoubleLinkedListNode<T>* node)
 		{
-			if(!node)
+			if (!node)
 				return false;
-			if(node->Previous)
+			if (node->Previous)
 				node->Previous->Next = node->Next;
-			if(node->Next)
+			if (node->Next)
 				node->Next->Previous = node->Previous;
 
 			delete node;
 			m_NodeCount--;
-			
+
 			return true; // Successfully removed node
 		}
 
@@ -208,6 +263,22 @@ namespace LCDS
 			}
 
 			return nullptr;
+		}
+		
+		int IndexOf(std::function<bool(T&)> selector)
+		{
+			auto node = GetHead();
+			int index = 0;
+
+			while (node)
+			{
+				if (selector(node->Value))
+					return index;
+				node = node->Next;
+				index++;
+			}
+
+			return -1;
 		}
 
 		// Removes all nodes from list

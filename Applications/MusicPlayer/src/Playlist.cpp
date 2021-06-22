@@ -15,6 +15,8 @@ unsigned int Playlist::Size() const { return m_List.Size(); }
 void Playlist::Add(Song song) { m_List.Add(song); }
 void Playlist::Insert(Song song, unsigned int index) { m_List.Insert(song, index); }
 
+void Playlist::Shift(unsigned int index, bool forward) { m_List.Shift(index, forward); }
+
 void Playlist::Remove(unsigned int index) { m_List.RemoveAt(index); }
 void Playlist::Remove(string songName)
 {
@@ -65,7 +67,7 @@ void Playlist::Load(string filepath)
 	unsigned int count = 0;
 	memcpy(&count, temp, sizeof(unsigned int)); // Fill `count` with `temp`
 
-	for (int i = 0; i < count; i++)
+	for (unsigned int i = 0; i < count; i++)
 	{
 		Song song;
 

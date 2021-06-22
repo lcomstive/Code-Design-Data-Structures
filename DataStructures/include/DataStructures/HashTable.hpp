@@ -172,7 +172,7 @@ namespace LCDS
 			if (!m_Buckets)
 				return; // Already destroyed
 
-			for (int i = 0; i < m_BucketCount; i++)
+			for (unsigned int i = 0; i < m_BucketCount; i++)
 				delete m_Buckets[i];
 			delete[] m_Buckets;
 

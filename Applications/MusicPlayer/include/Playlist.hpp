@@ -19,6 +19,8 @@ namespace MusicPlayer
 		void Add(Song song);
 		void Insert(Song song, unsigned int index);
 
+		void Shift(unsigned int index, bool forward = true);
+
 		void Remove(unsigned int index);
 		void Remove(std::string songName);
 

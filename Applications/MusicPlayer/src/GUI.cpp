@@ -27,29 +27,28 @@ void DrawPlaylistUI(MusicPlayer::Player& player, Font& font)
 	Vector2 resolution = { (float)GetScreenWidth(), (float)GetScreenHeight() };
 
 	static int playlistScrollValue = 0;
-	playlistScrollValue = GuiScrollBar({ resolution.x - 30, 20, 10, resolution.y - 130 }, playlistScrollValue, 0, 100);
+	playlistScrollValue = GuiScrollBar({ resolution.x - 30, 20, 10, resolution.y - 220 }, playlistScrollValue, 0, 100);
 
 	auto dpi = GetWindowScaleDPI();
-	if(dpi.x == 1 && dpi.y == 1)
-		dpi = { 0, 0 }; // No need for shifting by resolution if dpi is { 1, 1 }
-	BeginScissorMode(20 * dpi.x, -(resolution.y / 2) * dpi.y + 20, (resolution.x - 60) * dpi.x, (resolution.y - 150) * dpi.y);
+	BeginScissorMode((int)(20 * dpi.x), (int)(resolution.y * -(dpi.y - 1.0f) + 20), (int)((resolution.x - 60) * dpi.x), (int)((resolution.y - 150.0f) * dpi.y));
 
 	int songIndex = 0;
+	int playlistCount = playlist.Size();
 	while (song)
 	{
 		bool currentSong = song == player.GetPlayingSong();
 		float yValue = 20 - 20.0f * playlistScrollValue + 65 * songIndex;
 
 		// Dummy button for highlight when hovering
-		Rectangle backgroundSize = { 20, yValue, resolution.x - 50, 65 };
+		Rectangle backgroundSize = { 20, yValue, resolution.x - 80, 65 };
 		bool mouseHover = mousePos.x > backgroundSize.x && mousePos.x < backgroundSize.x + backgroundSize.width &&
 						  mousePos.y > backgroundSize.y && mousePos.y < backgroundSize.y + backgroundSize.height;
 		GuiDrawRectangle(backgroundSize, 0, RAYWHITE, Color{ 255, 255, 255, (unsigned char)(mouseHover ? 10 : 0) });
 
-		GuiDrawText(song->Value.Name.c_str(), { 20, yValue }, 26, currentSong ? PURPLE : RAYWHITE);
-		GuiDrawText(song->Value.Artist.c_str(), { 20, yValue + 20 }, 26, GRAY);
+		GuiDrawText(song->Value.Name.c_str(), { 60, yValue }, 26, currentSong ? PURPLE : RAYWHITE);
+		GuiDrawText(song->Value.Artist.c_str(), { 60, yValue + 20 }, 26, GRAY);
 
-		DrawLine(backgroundSize.x, yValue + 60, backgroundSize.width, yValue + 60, Color{ 255, 255, 255, 20 });
+		DrawLine((int)backgroundSize.x, (int)yValue + 60, (int)backgroundSize.width, (int)yValue + 60, Color{ 255, 255, 255, 20 });
 
 		if (GuiButton({ backgroundSize.x + backgroundSize.width - 50, backgroundSize.y + 15, 30, 30 }, GuiIconText(RICON_PLAYER_PLAY, "")))
 			player.Play(songIndex);
@@ -60,10 +59,53 @@ void DrawPlaylistUI(MusicPlayer::Player& player, Font& font)
 			continue;
 		}
 
+		if (GuiButton({ 20, yValue, 25, 25 }, GuiIconText(RICON_ARROW_TOP, "")))
+		{
+			song = song->Next;
+			playlist.Shift(songIndex);
+			songIndex++;
+			continue;
+		}
+		if (GuiButton({ 20, yValue + 30, 25, 25 }, GuiIconText(RICON_ARROW_BOTTOM, "")))
+		{
+			song = song->Next;
+			playlist.Shift(songIndex, false);
+			songIndex++;
+			continue;
+		}
+
 		songIndex++;
 		song = song->Next;
 	}
 	EndScissorMode();
+
+	// Add song
+	const unsigned int MaxStringLength = 256;
+	static bool SongNameEdit = false;
+	static char SongName[MaxStringLength] = "Song Name";
+	if (GuiTextBox({ 20, resolution.y - 180, resolution.x * 0.5f - 40, 30 }, SongName, MaxStringLength, SongNameEdit))
+		SongNameEdit = !SongNameEdit;
+	
+	static bool SongArtistEdit = false;
+	static char SongArtist[MaxStringLength] = "Artist";
+	if (GuiTextBox({ resolution.x * 0.5f - 5, resolution.y - 180, resolution.x * 0.5f - 30, 30 }, SongArtist, MaxStringLength, SongArtistEdit))
+		SongArtistEdit = !SongArtistEdit;
+	
+	static bool SongPathEdit = false;
+	static char SongPath[MaxStringLength] = "./assets/music/Filepath.mp3";
+	if (GuiTextBox({ 20, resolution.y - 140, (resolution.x - 20) * 0.8f, 30 }, SongPath, MaxStringLength, SongPathEdit))
+		SongPathEdit = !SongPathEdit;
+
+	if (GuiButton({ (resolution.x - 50) * 0.8f + 50, resolution.y - 140, (resolution.x - 40) * 0.15f, 30 }, "Add"))
+	{
+		player.GetPlaylist().Add({ string(SongName), string(SongArtist), string(SongPath) });
+
+		memset(SongName, '\0', MaxStringLength);
+		memset(SongPath, '\0', MaxStringLength);
+		memset(SongArtist, '\0', MaxStringLength);
+
+		SongNameEdit = SongPathEdit = SongArtistEdit = false;
+	}
 }
 
 void DrawGUI(MusicPlayer::Player& player, Font& font)

@@ -62,8 +62,10 @@ int main()
 
 	// ReadFile();
 
-	m_Player.GetPlaylist().Add(Song{ "NWord Pass", "Ryzer", "./assets/music/NWordPass.mp3" });
+	m_Player.GetPlaylist().Add(Song{ "Pass", "Ryzer", "./assets/music/NWordPass.mp3" });
 	m_Player.GetPlaylist().Add(Song{ "Fireflies", "Ryzer", "./assets/music/Rickys_Fireflies.mp3" });
+	m_Player.GetPlaylist().Add(Song{ "Mockingbird", "Ricky", "./assets/music/Mockingbird.mp3" });
+	m_Player.GetPlaylist().Add(Song{ "Heman", "Ryzer", "./assets/music/Heman.mp3" });
 
 	// Window
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
