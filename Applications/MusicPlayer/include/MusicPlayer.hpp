@@ -1,3 +1,12 @@
+/*
+ *
+ * AIE Introduction to C++
+ * Playlist Viewer - Demonstration of double linked lists
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright.
+ *
+ */
 #pragma once
 #include <raylib.h>
 #include <Playlist.hpp>
@@ -40,6 +49,7 @@ namespace MusicPlayer
 		void Next();
 		void Previous();
 
+		// Note: Doesn't work, see definition for details
 		void Seek(int position);
 
 		bool IsPlaying();

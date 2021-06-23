@@ -51,6 +51,9 @@ unsigned int bucketCount = 10; // Should be large enough to store expected amoun
 LCDS::HashTable<std::string, int> hashTable = LCDS::HashTable<std::string, int>(bucketCount, HashFunc);
 ```
 
+### Linked List & Double Linked List
+
+> Note: Type passed in to list must have at minimum the `>` operator overloaded; This is to support sorting
 
 ## LICENSE
 

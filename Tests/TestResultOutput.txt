@@ -1,0 +1,102 @@
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(28): passed: tree.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(29): passed: tree.Contains(TestArray[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(39): passed: node->Value == elementToAdd for: 20 == 20
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(42): passed: tree.Size() == (TestArraySize + 1) for: 6 == 6
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(28): passed: tree.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(29): passed: tree.Contains(TestArray[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(51): passed: tree.Size() == (TestArraySize + 3) for: 8 == 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(57): passed: tree.Size() == (TestArraySize + 2) for: 7 == 7
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(28): passed: tree.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(29): passed: tree.Contains(TestArray[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(65): passed: tree.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(135): passed: node->Value.Files[0].compare(elementToAdd.Files[0]) == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(138): passed: tree.Size() == (FileSystem.size() + 1) for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(147): passed: tree.Size() == (FileSystem.size() + 3) for: 7 == 7
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(156): passed: receiptsNode->Value.Name.compare(receipts.Name) == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(162): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(156): passed: receiptsNode->Value.Name.compare(receipts.Name) == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(170): passed: tree.Search(receipts) == nullptr for: nullptr == nullptr
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(179): passed: node != nullptr for: 0x0000026d033eb590 != nullptr
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(180): passed: node->Value == searchFolder for: {?} == {?}
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(181): passed: node->Value.Files.size() == searchFolder.Files.size() for: 2 == 2
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(187): passed: tree.Size() == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(188): passed: tree.GetRoot() == nullptr for: nullptr == nullptr
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(195): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(36): passed: linkedList.GetHead()->Value == addElementAtStart for: 20 == 20
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(37): passed: linkedList.Size() == (TestArraySize + 1) for: 6 == 6
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(44): passed: linkedList.Size() == (TestArraySize - 1) for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(52): passed: linkedList.Size() == (TestArraySize + 1) for: 6 == 6
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(53): passed: linkedList.GetTail()->Value == elementToAdd for: 57 == 57
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(60): passed: linkedList.Size() == (TestArraySize - 1) for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(61): passed: linkedList.GetTail()->Value == TestArray[TestArraySize - 2] for: 22 == 22
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(67): passed: secondFromEndNode->Value == TestArray[TestArraySize - 2] for: 22 == 22
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(71): passed: linkedList.Size() == TestArraySize - 1 for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(72): passed: linkedList.GetTail()->Previous->Value == TestArray[TestArraySize - 3] for: 8 == 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(79): passed: thirdElement->Value == TestArray[index] for: 8 == 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(83): passed: linkedList.Size() == TestArraySize - 1 for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(84): passed: linkedList.GetNode(index)->Value != TestArray[index] for: 22 != 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(90): passed: linkedList.IsEmpty() for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(91): passed: linkedList.Size() == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(99): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 8 == 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(99): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 10 == 10
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(99): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 12 == 12
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(99): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 15 == 15
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(99): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 22 == 22
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(111): passed: foundIndex == afterIndex for: 1 == 1
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(123): passed: foundIndex == afterIndex for: 3 == 3
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(135): passed: foundIndex == afterIndex for: 2 == 2
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(147): passed: foundIndex == afterIndex for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\HashTable.cpp(32): passed: table.Size() == values.size() for: 3 == 3
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\HashTable.cpp(39): passed: table.Size() == (values.size() + 1) for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\HashTable.cpp(32): passed: table.Size() == values.size() for: 3 == 3
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\HashTable.cpp(47): passed: foundValue == desiredFound.second for: 42 == 42
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\HashTable.cpp(32): passed: table.Size() == values.size() for: 3 == 3
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\HashTable.cpp(54): passed: table.Size() == (values.size() - 1) for: 2 == 2
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\HashTable.cpp(32): passed: table.Size() == values.size() for: 3 == 3
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(36): passed: linkedList.GetHead()->Value == addElementAtStart for: 20 == 20
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(37): passed: linkedList.Size() == (TestArraySize + 1) for: 6 == 6
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(43): passed: secondFromEndNode->Value == TestArray[TestArraySize - 2] for: 22 == 22
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(47): passed: linkedList.Size() == TestArraySize - 1 for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(48): passed: linkedList.FindPrevious(linkedList.GetTail())->Value == TestArray[TestArraySize - 3] for: 8 == 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(55): passed: thirdElement->Value == TestArray[index] for: 8 == 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(59): passed: linkedList.Size() == TestArraySize - 1 for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(60): passed: linkedList.GetNode(index)->Value != TestArray[index] for: 22 != 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(68): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 8 == 8
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(68): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 10 == 10
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(68): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 12 == 12
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(68): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 15 == 15
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(68): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 22 == 22
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
+Passed all 6 test cases with 100 assertions.
+

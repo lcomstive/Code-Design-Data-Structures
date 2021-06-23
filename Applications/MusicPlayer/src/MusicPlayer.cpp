@@ -1,9 +1,19 @@
+/*
+ *
+ * AIE Introduction to C++
+ * Playlist Viewer - Demonstration of double linked lists
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright.
+ *
+ */
 #include <MusicPlayer.hpp>
 
 using namespace std;
 using namespace LCDS;
 using namespace MusicPlayer;
 
+// Custom string hashing function
 unsigned int FilepathHash(string& filepath)
 {
 	const unsigned int RandomNumbers[] =
@@ -32,14 +42,11 @@ Player::Player() : m_State(MusicState::Stopped), m_CurrentMusic(), m_Playlist(),
 {
 	SetVolume(1.0f);
 
-	// If not a pointer, causes access violation upon deletion of values array (in this case, Raylib's Music)
+	// If not created as a pointer, causes access violation upon deletion of values array (in this case, Raylib's Music)
 	m_MusicCache = make_unique<HashTable<string, Music>>(25, FilepathHash);
 }
 
-Player::~Player()
-{
-	Stop();
-}
+Player::~Player() { Stop(); }
 
 void Player::Update()
 {
@@ -97,9 +104,10 @@ void Player::Load(DoubleLinkedListNode<Song>* song)
 	m_CurrentSong = song;
 
 	string& filepath = song->Value.Filepath;
-	if (!m_MusicCache->Contains(filepath))
+	if (!m_MusicCache->Contains(filepath)) // Add song to cache
 		m_MusicCache->Add(filepath, LoadMusicStream(filepath.c_str()));
 
+	// Load song from cache
 	m_CurrentMusic = m_MusicCache->Find(filepath);
 	m_State = MusicState::Loaded;
 }
@@ -160,9 +168,9 @@ void Player::Seek(int position)
 	/// rAudioBuffer is an "incomplete type", although defined in raudio.c
 	/// Would have thought building against raylib.lib would have fixed?
 	/// Can't find another way to seek Raylib raudio streams?
-	// struct rAudioBuffer* buffer = m_CurrentMusic.stream.buffer;
 
 	/*
+	struct rAudioBuffer* buffer = m_CurrentMusic.stream.buffer;
 	int maxSamples = buffer->sampleCount;
 	if (position > buffer->sampleCount)
 		position = buffer->sampleCount - 1; // Play last frame

@@ -1,3 +1,12 @@
+/*
+ *
+ * AIE Introduction to C++
+ * Playlist Viewer - Demonstration of double linked lists
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright.
+ *
+ */
 #include <string>
 #include <fstream>
 #include <algorithm>
@@ -20,7 +29,10 @@ void Playlist::Shift(unsigned int index, bool forward) { m_List.Shift(index, for
 void Playlist::Remove(unsigned int index) { m_List.RemoveAt(index); }
 void Playlist::Remove(string songName)
 {
+	// Convert songname to lowercase
 	transform(songName.begin(), songName.end(), songName.begin(), ::tolower);
+
+	// Find song to remove based on songName
 	auto node = m_List.Find([=](Song& s)
 		{
 			// Create temporary song name, and convert to lowercase for testing
@@ -35,6 +47,13 @@ void Playlist::Remove(string songName)
 
 void Playlist::Clear() { m_List.Clear(); }
 
+void Playlist::Sort() { m_List.Sort([=](Song& a, Song& b) { return a.Name.compare(b.Name) >= 0; }); }
+void Playlist::SortDescending() { m_List.Sort([=](Song& a, Song& b) { return a.Name.compare(b.Name) <= 0; }); }
+
+void Playlist::SortArtist() { m_List.Sort([=](Song& a, Song& b) { return a.Artist.compare(b.Artist) >= 0; }); }
+void Playlist::SortArtistDescending() { m_List.Sort([=](Song& a, Song& b) { return a.Artist.compare(b.Artist) <= 0; }); }
+
+// Filles the output array using the input, then pads the remainder of the array up to maxLength
 void FillCharArray(string& input, char* output, size_t maxLength)
 {
 	size_t stringLength = input.size();
@@ -52,31 +71,37 @@ void Playlist::Save(string filepath)
 
 	ofstream output(filepath, ios::out | ios::binary);
 
+	// Write song count
 	unsigned int listSize = m_List.Size();
 	output.write((char*)&listSize, sizeof(unsigned int));
 
+	// Loop over each song and write to file
 	auto node = m_List.GetHead();
 	char tempStr[max(SongStringLength, FilepathStringLength)];
 	while (node)
 	{
+		// Song Name
 		FillCharArray(node->Value.Name, tempStr, SongStringLength);
 		output.write(tempStr, SongStringLength);
 
+		// Artist
 		FillCharArray(node->Value.Artist, tempStr, SongStringLength);
 		output.write(tempStr, SongStringLength);
 
+		// Filepath
 		FillCharArray(node->Value.Filepath, tempStr, FilepathStringLength);
 		output.write(tempStr, FilepathStringLength);
 
 		node = node->Next;
 	}
 
+	// Write to file
 	output.flush();
 	output.close();
 	cout << "Saved playlist to '" << filepath << "'" << endl;
 }
 
-void Playlist::Load(string filepath)
+bool Playlist::Load(string filepath)
 {
 	Clear();
 
@@ -86,23 +111,28 @@ void Playlist::Load(string filepath)
 	if (!input)
 	{
 		cout << "Tried loading playlist '" << filepath << "', but file was not found" << endl;
-		return; // File could not be opened
+		return false; // File could not be opened
 	}
 
+	// Get song count
 	input.read(temp, sizeof(unsigned int));
 	unsigned int count = 0;
 	memcpy(&count, temp, sizeof(unsigned int)); // Fill `count` with `temp`
 
+	// Loop over each song and read in
 	for (unsigned int i = 0; i < count; i++)
 	{
 		Song song;
 
+		// Name
 		input.read(temp, SongStringLength);
 		song.Name = string(temp, SongStringLength);
 
+		// Artist
 		input.read(temp, SongStringLength);
 		song.Artist = string(temp, SongStringLength);
 
+		// Filepath
 		input.read(temp, FilepathStringLength);
 		song.Filepath = string(temp, FilepathStringLength);
 
@@ -111,6 +141,7 @@ void Playlist::Load(string filepath)
 
 	input.close();
 	cout << "Loaded playlist '" << filepath << "'" << endl;
+	return true;
 }
 
 Song Playlist::GetSong(unsigned int index)

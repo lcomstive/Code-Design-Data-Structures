@@ -100,9 +100,14 @@ bool InsertValueSpinnerEdit = false;
 
 bool DrawGUI()
 {
+	bool captureMouse = false;
+
 	// Insert node value spinner
 	if (GuiValueBox({ 10, 10, 50, 30 }, nullptr, &InsertValue, 0, 9999, InsertValueSpinnerEdit))
+	{
 		InsertValueSpinnerEdit = !InsertValueSpinnerEdit;
+		captureMouse = true;
+	}
 
 	// Add button
 	if (GuiButton({ 70, 10, 30, 30 }, "+"))
@@ -110,6 +115,7 @@ bool DrawGUI()
 		Tree.Insert(InsertValue);
 		cout << "Inserted " << InsertValue << endl;
 		InsertValue = 0;
+		captureMouse = true;
 	}
 
 	// Find button
@@ -118,9 +124,10 @@ bool DrawGUI()
 		auto foundNode = Tree.Search(InsertValue);
 		HighlightedValue = foundNode ? foundNode->Value : -1;
 		cout << "Searched for " << InsertValue << (foundNode ? "" : " (not found)") << endl;
+		captureMouse = true;
 	}
 
-	return false;
+	return captureMouse;
 }
 
 void HandleMouse()
@@ -182,6 +189,7 @@ Color ColorLerp(Color a, Color b, float value)
 	};
 }
 
+// Recursive function for drawing nodes
 void DrawTreeNode(LCDS::BinaryTreeNode<int>* currentNode, int x, int y, float verticalSpacing)
 {
 	if (!currentNode)
@@ -190,16 +198,16 @@ void DrawTreeNode(LCDS::BinaryTreeNode<int>* currentNode, int x, int y, float ve
 	if (currentNode->Left)
 	{
 		DrawLine(x, y, x + WidthBetweenNodes, (int)(y + verticalSpacing), GRAY);
-		DrawTreeNode(currentNode->Left, x + WidthBetweenNodes, y + verticalSpacing, verticalSpacing * 0.475f);
+		DrawTreeNode(currentNode->Left, x + WidthBetweenNodes, y + (int)verticalSpacing, verticalSpacing * 0.475f);
 	}
 
 	if (currentNode->Right)
 	{
 		DrawLine(x, y, x + WidthBetweenNodes, (int)(y - verticalSpacing), GRAY);
-		DrawTreeNode(currentNode->Right, x + WidthBetweenNodes, y - verticalSpacing, verticalSpacing * 0.475f);
+		DrawTreeNode(currentNode->Right, x + WidthBetweenNodes, y - (int)verticalSpacing, verticalSpacing * 0.475f);
 	}
 
-	float lerpModifier = GetTime() + Tree.GetDepth(currentNode) / (float)Tree.GetDepth();
+	float lerpModifier = (float)GetTime() + Tree.GetDepth(currentNode) / (float)Tree.GetDepth();
 	lerpModifier = (sin(lerpModifier) + 1) * 0.5f;  // Remap sin from -1 <-> -1 to 0 <-> 1
 
 	Color nodeColor = ColorLerp(
@@ -207,11 +215,21 @@ void DrawTreeNode(LCDS::BinaryTreeNode<int>* currentNode, int x, int y, float ve
 		NormalNodeColourRight,
 		lerpModifier
 	);
-	DrawCircle(x, y, 10, HighlightedValue == currentNode->Value ? HighlightNodeColour : nodeColor);
+	float circleRadius = 10;
+	DrawCircle(x, y, circleRadius, HighlightedValue == currentNode->Value ? HighlightNodeColour : nodeColor);
 	DrawText(to_string(currentNode->Value).c_str(), x, y, 10, RAYWHITE);
+
+	// Calculate distance of node from mouse
+	Vector2 nodeScreenPos = GetWorldToScreen2D(Vector2 { (float)x, (float)y }, Cam);
+
+	float distanceX = nodeScreenPos.x - LastMousePos.x;
+	float distanceY = nodeScreenPos.y - LastMousePos.y;
+	float distanceFromMouseSqr = (distanceX * distanceX) + (distanceY * distanceY);
+
+	// Check for mouse collision, if so then remove node
+	if (distanceFromMouseSqr < (circleRadius * circleRadius) &&
+			IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+		Tree.Remove(currentNode);
 }
 
-void DrawTree()
-{
-	DrawTreeNode(Tree.GetRoot(), 0, 0, InitialVerticalSpacing);
-}
+void DrawTree() { DrawTreeNode(Tree.GetRoot(), 0, 0, InitialVerticalSpacing); }

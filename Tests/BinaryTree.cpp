@@ -152,13 +152,22 @@ TEST_CASE("Binary tree can be created from non-standard struct", "[binary-tree]"
 		Folder receipts("Receipts", { "Overpriced Mayonnaise", "Ugandan Knuckles NFT" });
 
 		tree.Insert(receipts);
-		REQUIRE(tree.Search(receipts)->Value.Name.compare(receipts.Name) == 0);
+		auto receiptsNode = tree.Search(receipts);
+		REQUIRE(receiptsNode->Value.Name.compare(receipts.Name) == 0);
 
 		SECTION("Removing element by value")
 		{
 			tree.Remove(receipts);
 
 			REQUIRE(tree.Size() == FileSystem.size());
+		}
+
+		SECTION("Removing element by node")
+		{
+			tree.Remove(receiptsNode);
+
+			REQUIRE(tree.Size() == FileSystem.size());
+			REQUIRE(tree.Search(receipts) == nullptr);
 		}
 	}
 

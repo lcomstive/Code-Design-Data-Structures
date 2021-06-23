@@ -1,3 +1,16 @@
+/*
+ *
+ * AIE Introduction to C++
+ * Playlist Viewer - Demonstration of double linked lists
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright.
+ * 
+ * -------
+ * WARNING: Immediate mode UI, it isn't pretty..
+ * -------
+ * 
+ */
 #include <string>
 #include <MusicPlayer.hpp>
 
@@ -26,18 +39,34 @@ void DrawPlaylistUI(MusicPlayer::Player& player, Font& font)
 
 	Vector2 resolution = { (float)GetScreenWidth(), (float)GetScreenHeight() };
 
+	// Draw scrollbar
 	static int playlistScrollValue = 0;
-	playlistScrollValue = GuiScrollBar({ resolution.x - 30, 20, 10, resolution.y - 220 }, playlistScrollValue, 0, 100);
+	playlistScrollValue = GuiScrollBar({ resolution.x - 30, 60, 10, resolution.y - 250 }, playlistScrollValue, 0, playlist.Size());
+	playlistScrollValue -= (int)floor(GetMouseWheelMove());
+	if (playlistScrollValue < 0) playlistScrollValue = 0;
+	if (playlistScrollValue >= (int)playlist.Size()) playlistScrollValue = playlist.Size();
 
+	// Sorting buttons
+	GuiLabel({ 20, 20, 80, 30 }, "Sort by: ");
+	if (GuiButton({ 120, 20, 100, 30 }, GuiIconText(RICON_ARROW_TOP, "Song")))
+		playlist.Sort();
+	if (GuiButton({ 230, 20, 100, 30 }, GuiIconText(RICON_ARROW_BOTTOM, "Song")))
+		playlist.SortDescending();
+	if (GuiButton({ 340, 20, 100, 30 }, GuiIconText(RICON_ARROW_TOP, "Artist")))
+		playlist.SortArtist();
+	if (GuiButton({ 450, 20, 100, 30 }, GuiIconText(RICON_ARROW_BOTTOM, "Artist")))
+		playlist.SortArtistDescending();
+
+	// Draw songs in playlist
 	auto dpi = GetWindowScaleDPI();
-	BeginScissorMode((int)(20 * dpi.x), (int)(resolution.y * -(dpi.y - 1.0f) + 20), (int)((resolution.x - 60) * dpi.x), (int)((resolution.y - 150.0f) * dpi.y));
+	BeginScissorMode((int)(20 * dpi.x), (int)(resolution.y * -(dpi.y - 1.0f) + 20), (int)((resolution.x - 60) * dpi.x), (int)((resolution.y - 210.0f) * dpi.y));
 
 	int songIndex = 0;
 	bool songDeleted = false;
 	while (song)
 	{
 		bool currentSong = song == player.GetPlayingSong();
-		float yValue = 20 - 20.0f * playlistScrollValue + 65 * songIndex;
+		float yValue = 60 - 20.0f * playlistScrollValue + 65 * songIndex;
 
 		// Dummy button for highlight when hovering
 		Rectangle backgroundSize = { 20, yValue, resolution.x - 80, 65 };

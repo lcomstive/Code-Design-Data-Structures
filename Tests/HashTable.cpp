@@ -7,9 +7,9 @@ using namespace LCDS;
 
 static vector<pair<string, int>> values =
 {
-	{ "Lewis",  21		},
-	{ "Klemze", 42		},
-	{ "Squid", 8008135  }
+	{ "Lewis",  21	},
+	{ "Klemze", 42	},
+	{ "Squid",  361 }
 };
 
 unsigned int StringHash(string& input)
@@ -58,4 +58,9 @@ TEST_CASE("HashTable can be created from string keys and int values", "[hash-tab
 	{
 		table.Add(values[1]);
 	}
+}
+
+TEST_CASE("Elements are hashed")
+{
+
 }
