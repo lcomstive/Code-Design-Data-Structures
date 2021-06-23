@@ -1,3 +1,12 @@
+/*
+ *
+ * AIE Code Design & Data Structures
+ * Data Structures
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright information.
+ *
+ */
 #include <iostream>
 #include "EntityDisplayApp.h"
 
@@ -12,9 +21,7 @@ EntityDisplayApp::EntityDisplayApp(int screenWidth, int screenHeight) :
 	m_screenWidth(screenWidth),
 	m_screenHeight(screenHeight) { }
 
-EntityDisplayApp::~EntityDisplayApp() {
-
-}
+EntityDisplayApp::~EntityDisplayApp() { }
 
 bool EntityDisplayApp::Startup()
 {
@@ -49,7 +56,7 @@ bool EntityDisplayApp::Startup()
 	m_Entities = (Entity*)MapViewOfFile(m_SharedMemHandle, FILE_MAP_READ, 0, 0, sizeof(Entity) * *m_EntityCount);
 	m_Entities += sizeof(unsigned int); // Move pointer offset by size of unsigned int (the entity count)
 #else
-
+	// TODO: Cross-platform implementation
 #endif
 
 	InitWindow(m_screenWidth, m_screenHeight, "EntityDisplayApp");
@@ -60,6 +67,7 @@ bool EntityDisplayApp::Startup()
 
 void EntityDisplayApp::Shutdown()
 {
+	// Release resources
 #if _WIN32
 	CloseHandle(m_SharedMemHandle);
 #else
@@ -69,17 +77,15 @@ void EntityDisplayApp::Shutdown()
 	CloseWindow();        // Close window and OpenGL context
 }
 
-void EntityDisplayApp::Update(float deltaTime)
+void EntityDisplayApp::Update(float deltaTime) { /* App Logic */ }
+
+void EntityDisplayApp::Draw()
 {
-
-}
-
-void EntityDisplayApp::Draw() {
 	BeginDrawing();
 
 	ClearBackground(RAYWHITE);
 
-	// draw entities
+	// Draw entities
 	for (unsigned int i = 0; i < *m_EntityCount; i++)
 	{
 		Entity& entity = m_Entities[i];
@@ -90,7 +96,7 @@ void EntityDisplayApp::Draw() {
 			Color{ entity.r, entity.g, entity.b, 255 });
 	}
 
-	// output some text, uses the last used colour
+	// Output some text, uses the last used colour
 	DrawText("Press ESC to quit", 630, 15, 12, LIGHTGRAY);
 
 	EndDrawing();

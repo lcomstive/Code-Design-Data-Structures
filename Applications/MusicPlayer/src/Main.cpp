@@ -60,12 +60,13 @@ int main()
 	testTable.Print();
 	*/
 
-	// ReadFile();
-
+	/*
 	m_Player.GetPlaylist().Add(Song{ "Pass", "Ryzer", "./assets/music/NWordPass.mp3" });
 	m_Player.GetPlaylist().Add(Song{ "Fireflies", "Ryzer", "./assets/music/Rickys_Fireflies.mp3" });
 	m_Player.GetPlaylist().Add(Song{ "Mockingbird", "Ricky", "./assets/music/Mockingbird.mp3" });
 	m_Player.GetPlaylist().Add(Song{ "Heman", "Ryzer", "./assets/music/Heman.mp3" });
+	*/
+	m_Player.GetPlaylist().Load();
 
 	// Window
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
@@ -94,8 +95,7 @@ int main()
 		m_Player.Update();
 	}
 
-	// m_Player.GetPlaylist().Save();
-
+	m_Player.GetPlaylist().Save();
 	return 0;
 }
 

@@ -6,10 +6,12 @@ using namespace LCDS;
 
 namespace MusicPlayer
 {
-	const std::string DefaultPlaylistPath = "./playlist.dat";
+	const std::string DefaultPlaylistPath = "./assets/playlist.dat";
 
 	class Playlist
 	{
+		// Playlist is a proxy to the DoubleLinkedList
+
 		DoubleLinkedList<Song> m_List;
 
 	public:
@@ -19,6 +21,7 @@ namespace MusicPlayer
 		void Add(Song song);
 		void Insert(Song song, unsigned int index);
 
+		// Shifts a song up or down in the list
 		void Shift(unsigned int index, bool forward = true);
 
 		void Remove(unsigned int index);

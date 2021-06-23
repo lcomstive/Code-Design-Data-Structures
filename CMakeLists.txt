@@ -47,7 +47,10 @@ set_target_properties(IPC_Entities_Display PROPERTIES FOLDER "Applications")
 
 set_target_properties(glfw PROPERTIES FOLDER "Third Party")
 set_target_properties(raylib PROPERTIES FOLDER "Third Party")
-# set_target_properties(glfw_objlib PROPERTIES FOLDER "Third Party")
+
+if(TARGET glfw_objlib)
+	set_target_properties(glfw_objlib PROPERTIES FOLDER "Third Party")
+endif()
 
 # Disable warnings for certain projects (third party targets)
 if(MSVC)

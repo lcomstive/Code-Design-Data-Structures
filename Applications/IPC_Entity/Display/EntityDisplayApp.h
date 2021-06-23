@@ -1,9 +1,19 @@
+/*
+ *
+ * AIE Code Design & Data Structures
+ * Data Structures
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright information.
+ *
+ */
 #pragma once
 #include <vector>
-#include "raylib.h"
-#include "WinInc.h"
+#include <raylib.h>
+#include "WinInc.h" // Windows-specific includes and defines
 
-struct Entity {
+struct Entity
+{
 	float x = 0, y = 0;
 	float rotation = 0;
 	float speed = 0;
@@ -11,7 +21,8 @@ struct Entity {
 	float size = 1;
 };
 
-class EntityDisplayApp  {
+class EntityDisplayApp
+{
 public:
 	EntityDisplayApp(int screenWidth = 800, int screenHeight = 450);
 	~EntityDisplayApp();
@@ -19,13 +30,12 @@ public:
 	bool Startup();
 	void Shutdown();
 
-	void Update(float deltaTime);
-	void Draw();
+	void Update(float deltaTime); // App logic
+	void Draw();				  // Render to screen
 
 protected:
 	int m_screenWidth;
 	int m_screenHeight;
-
 
 	// NOTE: m_Entities and m_EntityCount are shared memory
 
@@ -36,8 +46,9 @@ protected:
 	unsigned int* m_EntityCount;
 
 #if _WIN32
+	// Windows-specific handle to shared memory
 	HANDLE m_SharedMemHandle;
 #else
-
+	// TODO: Cross-platform implementation
 #endif
 };

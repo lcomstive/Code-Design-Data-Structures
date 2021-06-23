@@ -12,18 +12,21 @@ static vector<pair<string, int>> values =
 	{ "Squid", 8008135  }
 };
 
+unsigned int StringHash(string& input)
+{
+	unsigned int hash = 0;
+	for (size_t i = 0; i < input.size(); i++)
+		hash = (hash * 1313) + input[i];
+
+	return hash;
+}
+
 TEST_CASE("HashTable can be created from string keys and int values", "[hash-table]")
 {
 	HashTable<string, int> table(
-		values, HashTable<string, int>::DefaultBucketCount,
-		[](string& input)
-		{
-			unsigned int hash = 0;
-			for (size_t i = 0; i < input.size(); i++)
-				hash = (hash * 1313) + input[i];
-
-			return hash;
-		}
+		values,
+		10, // Bucket count
+		StringHash
 	);
 
 	REQUIRE(table.Size() == values.size());

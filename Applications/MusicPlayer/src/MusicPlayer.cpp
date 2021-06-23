@@ -188,7 +188,7 @@ void Player::LoadPlaylist(std::string filepath)
 DoubleLinkedListNode<Song>* Player::GetPlayingSong()
 {
 	if (m_State == MusicState::Stopped || m_Playlist.Size() == 0)
-		return nullptr;
+		return (m_CurrentSong = nullptr);
 	return m_CurrentSong;
 }
 

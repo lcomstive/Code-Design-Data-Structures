@@ -1,12 +1,22 @@
+/*
+ *
+ * AIE Code Design & Data Structures
+ * Data Structures
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright information.
+ *
+ */
 #pragma once
 
-#pragma warning(push, 0) // Disable warnings in Visual Studio until pop
+#pragma warning(push, 0) // Disable warnings from Raylib
 #include <raylib.h>
-#pragma warning(pop)
+#pragma warning(pop) // Restore warnings
 
-#include "WinInc.h"
+#include "WinInc.h" // Windows-specific includes and defines
 
-struct Entity {
+struct Entity
+{
 	float x = 0, y = 0;
 	float rotation = 0;
 	float speed = 0;
@@ -14,7 +24,8 @@ struct Entity {
 	float size = 1;
 };
 
-class EntityEditorApp {
+class EntityEditorApp
+{
 public:
 	EntityEditorApp(int screenWidth = 800, int screenHeight = 450);
 	~EntityEditorApp();
@@ -26,6 +37,7 @@ public:
 	void Draw();
 
 protected:
+	// Initial count of entities
 	static const unsigned int ENTITY_COUNT = 10;
 
 	int m_ScreenWidth;
@@ -36,8 +48,9 @@ protected:
 	unsigned int* m_SharedEntityCount;  // Count of entities in array
 
 #if _WIN32
+	// Windows-specific handle to shared memory
 	HANDLE m_SharedMemHandle;
 #else
-
+	// TODO: Cross-platform implementation
 #endif
 };

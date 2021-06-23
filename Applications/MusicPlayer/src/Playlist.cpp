@@ -35,22 +35,45 @@ void Playlist::Remove(string songName)
 
 void Playlist::Clear() { m_List.Clear(); }
 
+void FillCharArray(string& input, char* output, size_t maxLength)
+{
+	size_t stringLength = input.size();
+	// Copy name into tempStr
+	memcpy(output, input.data(), min(maxLength, stringLength));
+	// Pad remainder of string with null-terminators
+	if (stringLength < maxLength)
+		memset(output + stringLength, '\0', maxLength - stringLength);
+}
+
 void Playlist::Save(string filepath)
 {
-	ofstream output(filepath, ios::in | ios::binary);
+	if (m_List.IsEmpty())
+		return;
 
-	output.write((char*)m_List.Size(), sizeof(unsigned int));
+	ofstream output(filepath, ios::out | ios::binary);
+
+	unsigned int listSize = m_List.Size();
+	output.write((char*)&listSize, sizeof(unsigned int));
 
 	auto node = m_List.GetHead();
+	char tempStr[max(SongStringLength, FilepathStringLength)];
 	while (node)
 	{
-		output.write(node->Value.Name.c_str(), SongStringLength);
-		output.write(node->Value.Artist.c_str(), SongStringLength);
+		FillCharArray(node->Value.Name, tempStr, SongStringLength);
+		output.write(tempStr, SongStringLength);
+
+		FillCharArray(node->Value.Artist, tempStr, SongStringLength);
+		output.write(tempStr, SongStringLength);
+
+		FillCharArray(node->Value.Filepath, tempStr, FilepathStringLength);
+		output.write(tempStr, FilepathStringLength);
+
 		node = node->Next;
 	}
 
 	output.flush();
 	output.close();
+	cout << "Saved playlist to '" << filepath << "'" << endl;
 }
 
 void Playlist::Load(string filepath)
@@ -58,10 +81,13 @@ void Playlist::Load(string filepath)
 	Clear();
 
 	ifstream input(filepath, ios::in | ios::binary);
-	char* temp = nullptr;
+	char temp[max(SongStringLength, FilepathStringLength)];
 
 	if (!input)
+	{
+		cout << "Tried loading playlist '" << filepath << "', but file was not found" << endl;
 		return; // File could not be opened
+	}
 
 	input.read(temp, sizeof(unsigned int));
 	unsigned int count = 0;
@@ -77,10 +103,14 @@ void Playlist::Load(string filepath)
 		input.read(temp, SongStringLength);
 		song.Artist = string(temp, SongStringLength);
 
+		input.read(temp, FilepathStringLength);
+		song.Filepath = string(temp, FilepathStringLength);
+
 		Add(song);
 	}
 
 	input.close();
+	cout << "Loaded playlist '" << filepath << "'" << endl;
 }
 
 Song Playlist::GetSong(unsigned int index)

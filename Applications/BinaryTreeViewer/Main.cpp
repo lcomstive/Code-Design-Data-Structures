@@ -1,12 +1,22 @@
-#include <string> // to_string
-#include <raylib.h>
-#include <iostream>
-#include <vector>
+/*
+ *
+ * AIE Code Design & Data Structures
+ * Data Structures
+ * Lewis Comstive (s210314)
+ *
+ * See the LICENSE file in the root directory of project for copyright information.
+ *
+ */
+
 #include <cmath> // std::lerp
+#include <string>
+#include <vector>
+#include <iostream>
+#include <raylib.h>
 #include <DataStructures/BinaryTree.hpp>
 
-#define RAYGUI_IMPLEMENTATION
 #pragma warning(push, 0) // Disable warnings from raygui.h
+#define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 #pragma warning(pop)
 
@@ -22,16 +32,17 @@ const float CameraMoveSpeed = 300;
 const float CameraZoomSpeed = 100;
 
 // Globals
-LCDS::BinaryTree<int> Tree;
 Camera2D Cam;
-int HighlightedValue = -1;
-Vector2 LastMousePos = { 0, 0 };
+int HighlightedValue = -1;  // Value of highlighted node
+LCDS::BinaryTree<int> Tree;
+Vector2 LastMousePos = { 0, 0 }; // Mouse position last frame
 
 int main()
 {
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 600, "Binary Tree Viewer");
 
+	// Initialise camera, origin at center of screen
 	Cam = {};
 	Cam.target = { 0, 0 };
 	Cam.offset =
@@ -63,7 +74,10 @@ int main()
 	{
 		BeginDrawing();
 		ClearBackground({ 37, 37, 43, 255 });
+
+#ifndef NDEBUG
 		DrawFPS(10, GetScreenHeight() - 30);
+#endif
 
 		HandleCameraMovement();
 
@@ -80,21 +94,25 @@ int main()
 	return 0;
 }
 
+// Spinner-box value, and bool for if currently editing spinner
 int InsertValue = 0;
 bool InsertValueSpinnerEdit = false;
 
 bool DrawGUI()
 {
-	// Insert node value
+	// Insert node value spinner
 	if (GuiValueBox({ 10, 10, 50, 30 }, nullptr, &InsertValue, 0, 9999, InsertValueSpinnerEdit))
 		InsertValueSpinnerEdit = !InsertValueSpinnerEdit;
 
+	// Add button
 	if (GuiButton({ 70, 10, 30, 30 }, "+"))
 	{
 		Tree.Insert(InsertValue);
 		cout << "Inserted " << InsertValue << endl;
 		InsertValue = 0;
 	}
+
+	// Find button
 	if (GuiButton({ 110, 10, 50, 30 }, "Find"))
 	{
 		auto foundNode = Tree.Search(InsertValue);
@@ -143,6 +161,7 @@ void HandleCameraMovement()
 	};
 }
 
+// Transition node colours for *flavour*
 const Color NormalNodeColourLeft  = { 127, 93, 244, 255 };
 const Color NormalNodeColourRight = { 93, 227, 104, 255 };
 const Color HighlightNodeColour = { 255, 200, 200, 255 };
@@ -171,13 +190,13 @@ void DrawTreeNode(LCDS::BinaryTreeNode<int>* currentNode, int x, int y, float ve
 	if (currentNode->Left)
 	{
 		DrawLine(x, y, x + WidthBetweenNodes, (int)(y + verticalSpacing), GRAY);
-		DrawTreeNode(currentNode->Left, x + WidthBetweenNodes, y + verticalSpacing, verticalSpacing * 0.6f);
+		DrawTreeNode(currentNode->Left, x + WidthBetweenNodes, y + verticalSpacing, verticalSpacing * 0.475f);
 	}
 
 	if (currentNode->Right)
 	{
 		DrawLine(x, y, x + WidthBetweenNodes, (int)(y - verticalSpacing), GRAY);
-		DrawTreeNode(currentNode->Right, x + WidthBetweenNodes, y - verticalSpacing, verticalSpacing * 0.6f);
+		DrawTreeNode(currentNode->Right, x + WidthBetweenNodes, y - verticalSpacing, verticalSpacing * 0.475f);
 	}
 
 	float lerpModifier = GetTime() + Tree.GetDepth(currentNode) / (float)Tree.GetDepth();

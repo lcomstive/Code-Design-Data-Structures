@@ -12,22 +12,20 @@
 
 using namespace std;
 
-EntityEditorApp::EntityEditorApp(int screenWidth, int screenHeight) : m_ScreenWidth(screenWidth), m_ScreenHeight(screenHeight) {
+EntityEditorApp::EntityEditorApp(int screenWidth, int screenHeight) : m_ScreenWidth(screenWidth), m_ScreenHeight(screenHeight) { }
 
-}
-
-EntityEditorApp::~EntityEditorApp() {
-
-}
+EntityEditorApp::~EntityEditorApp() { }
 
 #if _WIN32
-// Reference to https://stackoverflow.com/a/17387176
+// Checks for any errors in the Windows API and converts to readable string
+//	Reference to https://stackoverflow.com/a/17387176
 string GetWindowsError()
 {
 	auto errorID = GetLastError();
 	if (errorID == NO_ERROR)
 		return string();
 
+	// Retrieve message and size
 	LPSTR messageBuffer = nullptr;
 	size_t size = FormatMessageA(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER |
@@ -38,6 +36,7 @@ string GetWindowsError()
 		(LPSTR)&messageBuffer, 0, nullptr
 	);
 
+	// Convert to readable string
 	string finalMessage(messageBuffer, size);
 	LocalFree(messageBuffer);
 	return finalMessage;
@@ -87,7 +86,7 @@ bool EntityEditorApp::Startup() {
 		return false;
 	}
 #else
-
+	// TODO: cross-platform implementation
 #endif
 
 	// Generate random entities
@@ -107,15 +106,17 @@ bool EntityEditorApp::Startup() {
 	return true;
 }
 
-void EntityEditorApp::Shutdown() {
+void EntityEditorApp::Shutdown()
+{
+	// Release resources
+	CloseHandle(m_SharedMemHandle);
 
-	CloseWindow();        // Close window and OpenGL context
+	CloseWindow(); // Close window and OpenGL context
 }
 
-void EntityEditorApp::Update(float deltaTime) {
-
-
-	// select an entity to edit
+void EntityEditorApp::Update(float deltaTime)
+{
+	// Select an entity to edit
 	static int selection = 0;
 	static bool selectionEditMode = false;
 	static bool xEditMode = false;
@@ -124,7 +125,6 @@ void EntityEditorApp::Update(float deltaTime) {
 	static bool sizeEditMode = false;
 	static bool speedEditMode = false;
 	static Color colorPickerValue = WHITE;
-
 
 	if (GuiSpinner(Rectangle{ 90, 25, 125, 25 }, "Entity", &selection, 0, ENTITY_COUNT - 1, selectionEditMode)) selectionEditMode = !selectionEditMode;
 
@@ -135,7 +135,7 @@ void EntityEditorApp::Update(float deltaTime) {
 	int intSpeed = (int)m_Entities[selection].speed;
 
 
-	// display editable stats within a GUI	
+	// Display editable stats within a GUI	
 	GuiGroupBox(Rectangle{ 25, 70, 480, 220 }, "Entity Properties");
 
 	if (GuiValueBox(Rectangle{ 90, 90, 125, 25 }, "x", &intX, 0, m_ScreenWidth, xEditMode)) xEditMode = !xEditMode;
@@ -154,8 +154,7 @@ void EntityEditorApp::Update(float deltaTime) {
 	m_Entities[selection].b = colorPickerValue.b;
 
 
-	// move entities
-
+	// Move entities
 	for (int i = 0; i < ENTITY_COUNT; i++) {
 		if (selection == i)
 			continue;
@@ -175,12 +174,13 @@ void EntityEditorApp::Update(float deltaTime) {
 	}
 }
 
-void EntityEditorApp::Draw() {
+void EntityEditorApp::Draw()
+{
 	BeginDrawing();
 
 	ClearBackground(RAYWHITE);
 
-	// draw entities
+	// Draw entities
 	for(int i = 0; i < ENTITY_COUNT; i++)
 	{
 		Entity& entity = m_Entities[i];
@@ -191,7 +191,7 @@ void EntityEditorApp::Draw() {
 			Color { entity.r, entity.g, entity.b, 255 });
 	}
 
-	// output some text, uses the last used colour
+	// Output some text, uses the last used colour
 	DrawText("Press ESC to quit", 630, 15, 12, LIGHTGRAY);
 
 	EndDrawing();
