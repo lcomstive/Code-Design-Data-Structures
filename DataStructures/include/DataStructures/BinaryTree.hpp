@@ -133,51 +133,77 @@ namespace LCDS // Lewis Comstive's Data Structures
 #pragma region Remove
 		// Deletes the node and shifts appropriate nodes to fill.
 		// Returns shifted node, or nullptr if node is nullptr
-		BinaryTreeNode<T>* Remove(BinaryTreeNode<T>* node)
+		void Remove(BinaryTreeNode<T>* node)
 		{
 			if (!node)
-				return nullptr;
+				return;
+			auto parent = SearchForParent(m_Root, node);
 
-			// One or no children
-			if (!node->Left || !node->Right)
+			// No children, inform parent and delete node
+			if (!node->Left && !node->Right)
 			{
-				auto parent = SearchForParent(m_Root, node);
-				auto temp = node->Left ? node->Left : node->Right;
-
+				// Inform parent of deletion
 				if (parent)
 				{
-					int parentComparison = m_ComparisonFunc(parent->Value, node->Value);
-					if (parentComparison < 0) // Parent is less
-						parent->Right = temp;
+					if (parent->Left == node)
+						parent->Left = nullptr;
 					else
-						parent->Left = temp;
+						parent->Right = nullptr;
 				}
+				else // No parent, must be root with no nodes
+					m_Root = nullptr;
 
+				// Free memory and update count
 				delete node;
 				m_NodeCount--;
-
-				return temp;
+				return;
 			}
 
-			auto temp = GetMinValueNode(node->Right);
+			// Two children
+			if (node->Left && node->Right)
+			{
+				// Get minimum value of right node,
+				//	this value will be shifted in place of the current node
+				auto successor = GetMinValueNode(node->Right);
+				T value = successor->Value;
 
-			node->Value = temp->Value;
-			node->Right = Remove(node->Right);
+				Remove(successor); // Recursively delete successor
 
-			return node;
+				// Copy value of successor to current node
+				node->Value = value;
+				return;
+			}
+
+			// One child, check direction
+			auto child = node->Left ? node->Left : node->Right;
+
+			if (parent)
+			{
+				// Inform parent of updated child
+				if (node == parent->Left)
+					parent->Left = child;
+				else
+					parent->Right = child;
+			}
+			else // No parent, must be root
+				m_Root = child;
+
+			// Free resources
+			delete node;
+			m_NodeCount--;
 		}
 
 		// Searches for value under input node, then removes associated node.
 		// Returns shifted node, or nullptr if node is nullptr
-		BinaryTreeNode<T>* Remove(BinaryTreeNode<T>* current, T& value)
+		void Remove(BinaryTreeNode<T>* current, T& value)
 		{
 			if (!current)
-				return nullptr;
-			return Remove(Search(current, value));
+				return;
+			Remove(Search(current, value));
 		}
 
 		// Searches for value in entire tree and removes it
-		void Remove(T value) { m_Root = Remove(m_Root, value); }
+		void Remove(T value) { Remove(Search(m_Root, value)); }
 #pragma endregion
 
 #pragma region Search
@@ -261,7 +287,7 @@ namespace LCDS // Lewis Comstive's Data Structures
 		void Clear()
 		{
 			while (m_Root)
-				m_Root = Remove(m_Root, m_Root->Value);
+				Remove(m_Root, m_Root->Value);
 		}
 
 		void SetComparisonFunction(std::function<int(T&, T&)> comparisonFunc) { m_ComparisonFunc = comparisonFunc; }

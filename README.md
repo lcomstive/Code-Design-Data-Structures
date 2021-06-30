@@ -40,5 +40,11 @@ A simple music application to showcase double-linked-lists and hashtables.
 
 ![Dino Game](./Media/DinoGame.gif)
 
+## Tests
+[Catch2](https://github.com/catchorg/Catch2) is used as the test framework.
+
+Output of `CDDS_Tests.exe -r compact -s`
+![Tests](./Media/Tests.png)
+
 # License
 Check the [LICENSE](./LICENSE) for copyright

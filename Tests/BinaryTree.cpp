@@ -13,13 +13,17 @@ using namespace LCDS;
 // --- INT ARRAY --- //
 static int TestArray[] =
 {
-	10,
-	12,
-	8,
-	22,
-	15
+	78,
+	101,
+	90,
+	88,
+	89,
+	40,
+	50,
+	45,
+	30
 };
-unsigned int TestArraySize = 5;
+unsigned int TestArraySize = 9;
 
 TEST_CASE("Binary tree can be created from int array", "[binary-tree]")
 {
@@ -49,13 +53,6 @@ TEST_CASE("Binary tree can be created from int array", "[binary-tree]")
 		tree.Insert(11);
 
 		REQUIRE(tree.Size() == (TestArraySize + 3));
-
-		SECTION("Removing element")
-		{
-			tree.Remove(11);
-
-			REQUIRE(tree.Size() == (TestArraySize + 2));
-		}
 	}
 
 	SECTION("Duplicate entries are not added")
@@ -65,6 +62,53 @@ TEST_CASE("Binary tree can be created from int array", "[binary-tree]")
 		REQUIRE(tree.Size() == TestArraySize);
 	}
 }
+
+static int TestRemoveArray[] =
+{
+	10,
+	20,
+	30,
+	40
+};
+unsigned int TestRemoveArraySize = 4;
+TEST_CASE("Binary tree remove tests", "[binary-tree]")
+{
+	SECTION("Remove root node")
+	{
+		int values[] = { 10, 20, 30 };
+		BinaryTree<int> tree(values, 3);
+
+		REQUIRE(tree.Size() == 3);
+
+		// Remove root
+		tree.Remove(tree.GetRoot());
+
+		auto root = tree.GetRoot();
+		REQUIRE(root->Value == 20);
+		REQUIRE(root->Right->Value == 30);
+		REQUIRE(root->Left == nullptr);
+	}
+
+	SECTION("Remove middle node")
+	{
+		int values[] = { 20, 10, 30, 40 };
+		BinaryTree<int> tree(values, 4);
+
+		REQUIRE(tree.Size() == 4);
+
+		// Remove middle element
+		auto midElement = tree.Search(30);
+		REQUIRE(midElement != nullptr);
+		REQUIRE(midElement->Value == 30);
+		tree.Remove(midElement);
+
+		auto root = tree.GetRoot();
+		REQUIRE(root->Value == 20);
+		REQUIRE(root->Right->Value == 40);
+		REQUIRE(root->Left->Value == 10);
+	}
+}
+
 
 // --- NON-STANDARD DATA TYPE --- //
 struct Folder
@@ -158,7 +202,6 @@ TEST_CASE("Binary tree can be created from non-standard struct", "[binary-tree]"
 		SECTION("Removing element by value")
 		{
 			tree.Remove(receipts);
-
 			REQUIRE(tree.Size() == FileSystem.size());
 		}
 

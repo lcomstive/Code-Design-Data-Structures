@@ -127,6 +127,8 @@ bool DrawGUI()
 		captureMouse = true;
 	}
 
+	GuiLabel({ 10, 30, 160, 50 }, "Right click a node to delete");
+
 	return captureMouse;
 }
 

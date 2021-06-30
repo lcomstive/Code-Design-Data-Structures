@@ -1,42 +1,51 @@
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(28): passed: tree.Size() == TestArraySize for: 5 == 5
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(29): passed: tree.Contains(TestArray[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(39): passed: node->Value == elementToAdd for: 20 == 20
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(42): passed: tree.Size() == (TestArraySize + 1) for: 6 == 6
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(28): passed: tree.Size() == TestArraySize for: 5 == 5
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(29): passed: tree.Contains(TestArray[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(51): passed: tree.Size() == (TestArraySize + 3) for: 8 == 8
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(57): passed: tree.Size() == (TestArraySize + 2) for: 7 == 7
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(28): passed: tree.Size() == TestArraySize for: 5 == 5
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(29): passed: tree.Contains(TestArray[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(65): passed: tree.Size() == TestArraySize for: 5 == 5
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(135): passed: node->Value.Files[0].compare(elementToAdd.Files[0]) == 0 for: 0 == 0
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(138): passed: tree.Size() == (FileSystem.size() + 1) for: 5 == 5
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(147): passed: tree.Size() == (FileSystem.size() + 3) for: 7 == 7
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(156): passed: receiptsNode->Value.Name.compare(receipts.Name) == 0 for: 0 == 0
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(162): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(156): passed: receiptsNode->Value.Name.compare(receipts.Name) == 0 for: 0 == 0
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(170): passed: tree.Search(receipts) == nullptr for: nullptr == nullptr
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(179): passed: node != nullptr for: 0x0000026d033eb590 != nullptr
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(180): passed: node->Value == searchFolder for: {?} == {?}
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(181): passed: node->Value.Files.size() == searchFolder.Files.size() for: 2 == 2
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(187): passed: tree.Size() == 0 for: 0 == 0
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(188): passed: tree.GetRoot() == nullptr for: nullptr == nullptr
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(124): passed: tree.Size() == FileSystem.size() for: 4 == 4
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(125): passed: tree.Contains(FileSystem[2]) for: true
-D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(195): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(32): passed: tree.Size() == TestArraySize for: 9 == 9
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(33): passed: tree.Contains(TestArray[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(43): passed: node->Value == elementToAdd for: 20 == 20
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(46): passed: tree.Size() == (TestArraySize + 1) for: 10 == 10
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(32): passed: tree.Size() == TestArraySize for: 9 == 9
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(33): passed: tree.Contains(TestArray[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(55): passed: tree.Size() == (TestArraySize + 3) for: 12 == 12
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(32): passed: tree.Size() == TestArraySize for: 9 == 9
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(33): passed: tree.Contains(TestArray[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(62): passed: tree.Size() == TestArraySize for: 9 == 9
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(81): passed: tree.Size() == 3 for: 3 == 3
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(87): passed: root->Value == 20 for: 20 == 20
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(88): passed: root->Right->Value == 30 for: 30 == 30
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(89): passed: root->Left == nullptr for: nullptr == nullptr
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(97): passed: tree.Size() == 4 for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(101): passed: midElement != nullptr for: 0x000002148ffe5450 != nullptr
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(102): passed: midElement->Value == 30 for: 30 == 30
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(106): passed: root->Value == 20 for: 20 == 20
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(107): passed: root->Right->Value == 40 for: 40 == 40
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(108): passed: root->Left->Value == 10 for: 10 == 10
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(168): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(179): passed: node->Value.Files[0].compare(elementToAdd.Files[0]) == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(182): passed: tree.Size() == (FileSystem.size() + 1) for: 5 == 5
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(168): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(191): passed: tree.Size() == (FileSystem.size() + 3) for: 7 == 7
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(168): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(200): passed: receiptsNode->Value.Name.compare(receipts.Name) == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(205): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(168): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(200): passed: receiptsNode->Value.Name.compare(receipts.Name) == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(212): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(213): passed: tree.Search(receipts) == nullptr for: nullptr == nullptr
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(168): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(222): passed: node != nullptr for: 0x000002148ff606c0 != nullptr
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(223): passed: node->Value == searchFolder for: {?} == {?}
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(224): passed: node->Value.Files.size() == searchFolder.Files.size() for: 2 == 2
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(168): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(230): passed: tree.Size() == 0 for: 0 == 0
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(231): passed: tree.GetRoot() == nullptr for: nullptr == nullptr
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(168): passed: tree.Size() == FileSystem.size() for: 4 == 4
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(169): passed: tree.Contains(FileSystem[2]) for: true
+D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\BinaryTree.cpp(238): passed: tree.Size() == FileSystem.size() for: 4 == 4
 D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
 D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(36): passed: linkedList.GetHead()->Value == addElementAtStart for: 20 == 20
 D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\DoubleLinkedList.cpp(37): passed: linkedList.Size() == (TestArraySize + 1) for: 6 == 6
@@ -98,5 +107,5 @@ D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(68): pass
 D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(68): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 15 == 15
 D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(68): passed: linkedList.GetNode(i)->Value == TestArraySorted[i] for: 22 == 22
 D:\Projects\AIE_Projects\CodeDesignDataStructures\Tests\LinkedList.cpp(29): passed: linkedList.Size() == TestArraySize for: 5 == 5
-Passed all 6 test cases with 100 assertions.
+Passed all 7 test cases with 109 assertions.
 
